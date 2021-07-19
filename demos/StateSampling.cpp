@@ -38,11 +38,13 @@
 #include <ompl/base/spaces/SE3StateSpace.h>
 #include <ompl/base/samplers/ObstacleBasedValidStateSampler.h>
 #include <ompl/geometric/planners/prm/PRM.h>
+#include <ompl/geometric/planners/prm/SPARS.h>
 #include <ompl/geometric/SimpleSetup.h>
 
 #include <ompl/config.h>
 #include <iostream>
 #include <thread>
+#include <fstream>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -172,7 +174,8 @@ void plan(int samplerIndex)
         ss.getSpaceInformation()->setValidStateSamplerAllocator(allocMyValidStateSampler);
 
     // create a planner for the defined space
-    auto planner(std::make_shared<og::PRM>(ss.getSpaceInformation()));
+    // auto planner(std::make_shared<og::PRM>(ss.getSpaceInformation()));
+    auto planner(std::make_shared<og::SPARS>(ss.getSpaceInformation()));
     ss.setPlanner(planner);
 
     // attempt to solve the problem within ten seconds of planning time
@@ -181,6 +184,10 @@ void plan(int samplerIndex)
     {
         std::cout << "Found solution:" << std::endl;
         // print the path to screen
+        std::ofstream out;
+        out.open("/home/jay/TU_Berlin_Thesis/PRM_out.txt", std::ios_base::app);
+        // out.open("/home/jay/TU_Berlin_Thesis/PRM_out.txt");
+        ss.getSolutionPath().printAsMatrix(out);
         ss.getSolutionPath().print(std::cout);
     }
     else
@@ -189,6 +196,8 @@ void plan(int samplerIndex)
 
 int main(int /*argc*/, char ** /*argv*/)
 {
+    std::ofstream out("/home/jay/TU_Berlin_Thesis/PRM_out.txt");
+    // out << "Begin\n";
     std::cout << "Using default uniform sampler:" << std::endl;
     plan(0);
     std::cout << "\nUsing obstacle-based sampler:" << std::endl;
