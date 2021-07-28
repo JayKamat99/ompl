@@ -40,11 +40,11 @@ bool isStateValid(const ob::State *state)
     // return ((pos[0]*pos[0] + pos[1]*pos[1]) > 0.25);
 
     // multiple circles
-    // float x1 = 0, y1 = 0, r1 = 0.25;
-    // float x2 = 0.5, y2 = 0.5, r2 = 0.25;
-    // float x3 = -0.5, y3 = 0, r3 = 0.25;
-    // return (circ(x1,y1,r1,pos) && circ(x2,y2,r2,pos) && circ(x3,y3,r3,pos));
-    return (circ(-0.5,0,0.45,pos));
+    float x1 = 0, y1 = 0, r1 = 0.25;
+    float x2 = 0.5, y2 = 0.5, r2 = 0.25;
+    float x3 = -0.5, y3 = 0, r3 = 0.15;
+    return (circ(x1,y1,r1,pos) && circ(x2,y2,r2,pos) && circ(x3,y3,r3,pos));
+    // return (circ(-0.5,0,0.45,pos));
 }
 
 void plan(int plannerIndex)
@@ -129,7 +129,7 @@ int main(int /*argc*/, char ** /*argv*/)
     std::ofstream out("/home/jay/TU_Berlin_Thesis/Example_out.txt"); // create an empty txt file
     // plan(0); plan(2); plan(4);
     
-    for (int i=0; i<=6; i++)
+    for (int i=0; i<=4; i++)
     {
         plan(i);
     }
