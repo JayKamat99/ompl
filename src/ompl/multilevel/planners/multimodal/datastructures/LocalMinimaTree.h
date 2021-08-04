@@ -1,7 +1,7 @@
 #ifndef OMPL_MULTILEVEL_PLANNERS_MULTIMODAL_LOCALMINIMATREE_
 #define OMPL_MULTILEVEL_PLANNERS_MULTIMODAL_LOCALMINIMATREE_
 
-#include "elements/path_pwl.h"
+// #include "elements/path_pwl.h"
 #include <ompl/util/ClassForward.h>
 #include <ompl/base/State.h>
 #include <ompl/base/Cost.h>

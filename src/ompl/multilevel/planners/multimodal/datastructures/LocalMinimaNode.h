@@ -1,7 +1,7 @@
 #ifndef OMPL_MULTILEVEL_PLANNERS_MULTIMODAL_LOCALMINIMANODE_
 #define OMPL_MULTILEVEL_PLANNERS_MULTIMODAL_LOCALMINIMANODE_
 
-#include "elements/path_pwl.h"
+// #include "elements/path_pwl.h"
 #include <ompl/util/ClassForward.h>
 #include <ompl/base/State.h>
 #include <ompl/base/Cost.h>
@@ -53,7 +53,7 @@ namespace ompl
 
             bool isConverged() const;
 
-            PathPiecewiseLinear *customRepresentation{nullptr};
+            // PathPiecewiseLinear *customRepresentation{nullptr};
 
             int numberOfIdempotentUpdates_{0};
 

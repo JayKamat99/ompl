@@ -1,4 +1,4 @@
-#include "util.h"
+// #include "util.h"
 #include <ompl/multilevel/planners/multimodal/datastructures/LocalMinimaTree.h>
 #include <ompl/multilevel/planners/multimodal/datastructures/LocalMinimaNode.h>
 #include <ompl/multilevel/planners/multimodal/datastructures/PathSpaceMetrics.h>
@@ -191,7 +191,7 @@ void LocalMinimaTree::removePath(int level, int index)
     std::lock_guard<std::recursive_mutex> guard(getLock());
 
     LocalMinimaNode *node = tree_.at(level).at(index);
-    if(node->customRepresentation) delete node->customRepresentation;
+    // if(node->customRepresentation) delete node->customRepresentation;
     if(node) delete node;
 
     tree_.at(level).erase(tree_.at(level).begin() + index);
