@@ -4,6 +4,8 @@
 #include <ompl/multilevel/datastructures/graphsampler/GraphSampler.h>
 #include <ompl/multilevel/datastructures/PlannerDataVertexAnnotated.h>
 
+#include <ompl/multilevel/planners/multimodal/OptimizerInterface.h> //line added by me
+
 #include <ompl/base/Path.h>
 #include <ompl/base/goals/GoalSampleableRegion.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
@@ -64,7 +66,7 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //sparse roadmap parameters
     sparseDeltaFraction_ = 0.1; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000;
-    epsilonPathEquivalence_ = 0.5;
+    epsilonPathEquivalence_ = 0.2;
     epsilonConvergenceThreshold_ = 1e-2;
     NsubtresholdIterations_ = 100;
 
@@ -431,6 +433,6 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
               continue;
           }
         }
-		}
+	}
 }
 

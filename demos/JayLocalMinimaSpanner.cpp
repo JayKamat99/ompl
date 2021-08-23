@@ -9,6 +9,7 @@
 #include <iostream>
 #include <thread>
 #include <fstream>
+#include <typeinfo>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
@@ -26,8 +27,8 @@ bool circ(float x0, float y0, float r, const ob::RealVectorStateSpace::StateType
 bool isStateValid(const ob::State *state)
 {
     const ob::RealVectorStateSpace::StateType &pos = *state->as<ob::RealVectorStateSpace::StateType>();
-    
-    return (circ(-0.5, 0, 0.45, pos));
+    return (circ(0,0,0.25,pos) && circ(0.5,0.5,0.25,pos) && circ(-0.5,0,0.15,pos));
+    // return (circ(-0.5, 0, 0.45, pos));
 }
 
 void plan()
@@ -41,7 +42,7 @@ void plan()
     bounds.setHigh(1);
     space->setBounds(bounds);
 
-    //create instance of space information
+    // create instance of space information
     auto si(std::make_shared<ob::SpaceInformation>(space));
 
     // set state validity checking for this space
@@ -65,26 +66,30 @@ void plan()
 
     // Choose the planner
     std::cout << "\nUsing Local Minima Spanner:" << std::endl;
-    std::vector<ob::SpaceInformationPtr> siVec; siVec.push_back(si);
+    std::vector<ob::SpaceInformationPtr> siVec;
+    siVec.push_back(si);
     auto planner = std::make_shared<om::LocalMinimaSpanners>(siVec);
     planner->setProblemDefinition(pdef);
     planner->setup();
-    // ss.setPlanner(planner);
-    // auto pathSpacePlanner = std::dynamic_pointer_cast<ompl::multilevel::LocalMinimaSpanners>(planner);
-    // auto localMinimaTree = pathSpacePlanner->getLocalMinimaTree();
-    // std::cout << localMinimaTree->getNumberOfMinima() << std::endl;
-
+    
     // attempt to solve the problem within ten seconds of planning time
     ob::PlannerStatus solved = planner->ob::Planner::solve(10.0);
     if (solved)
     {
         std::cout << "Found solution:" << std::endl;
-        // print the path to screen
-        pdef->getSolutionPath()->print(std::cout);
-
-        // std::ofstream out;
-        // out.open("/home/jay/TU_Berlin_Thesis/Example_out.txt", std::ios_base::app);
-        // ss.getSolutionPath().printAsMatrix(out);
+        auto localMinimaTree = planner->getLocalMinimaTree();
+        int NumberOfMinima =  (int)localMinimaTree->getNumberOfMinima();
+        int NumberOfLevels =  (int)localMinimaTree->getNumberOfLevel();
+        std::ofstream out;
+        out.open("Plots/Paths_out.txt", std::ios_base::app);
+        // out << NumberOfMinima*NumberOfLevels << "\n";
+        for (int i=0; i<NumberOfLevels; i++){
+            for (int j=0; j<NumberOfMinima; j++){
+                std::cout << "\n New path[" << i << j << "] \n" << std::endl;
+                // std::dynamic_pointer_cast<ompl::geometric::PathGeometric>(localMinimaTree->getPath(i,j)->asPathPtr())->print(std::cout);
+                std::dynamic_pointer_cast<ompl::geometric::PathGeometric>(localMinimaTree->getPath(i,j)->asPathPtr())->printAsMatrix(out);
+            }
+        }
     }
     else
         std::cout << "No solution found" << std::endl;
@@ -92,7 +97,7 @@ void plan()
 
 int main(int /*argc*/, char ** /*argv*/)
 {
-    // std::ofstream out("/home/jay/TU_Berlin_Thesis/Example_out.txt");  // create an empty txt file
+    std::ofstream out("Plots/Paths_out.txt");  // create an empty txt file
     plan();
 
     return 0;
