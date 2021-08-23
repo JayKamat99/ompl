@@ -4,8 +4,6 @@
 #include <ompl/multilevel/datastructures/graphsampler/GraphSampler.h>
 #include <ompl/multilevel/datastructures/PlannerDataVertexAnnotated.h>
 
-#include <ompl/multilevel/planners/multimodal/OptimizerInterface.h> //line added by me
-
 #include <ompl/base/Path.h>
 #include <ompl/base/goals/GoalSampleableRegion.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
