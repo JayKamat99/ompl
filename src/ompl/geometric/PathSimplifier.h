@@ -245,6 +245,10 @@ namespace ompl
              * simplification */
             bool freeStates() const;
 
+            /** \brief Call KOMO to optimizr the path
+            */
+           bool optimizePathKOMO(PathGeometric &path);
+
         protected:
 
             int selectAlongPath(std::vector<double> dists, std::vector<base::State *> states,
