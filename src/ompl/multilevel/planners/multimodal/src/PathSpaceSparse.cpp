@@ -368,14 +368,13 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     }else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
+        optimizer_->optimizePathKOMO(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
         // valid = optimizer_->simplifyMax(gpath);
 
         // optimizer_->reduceVertices(gpath);
         // optimizer_->collapseCloseVertices(gpath);
-
-        optimizer_->optimizePathKOMO(gpath);
     }
     // gpath.interpolate();
 

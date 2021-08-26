@@ -19,9 +19,11 @@ namespace ompl
             PathOptimizer(base::SpaceInformationPtr si, const base::GoalPtr &goal = ompl::base::GoalPtr(), const base::OptimizationObjectivePtr& obj=nullptr);
             virtual ~PathOptimizer() = default;
 
-            /** \brief Given a path this method attempts to find a better path to the goal.
-             **/
             bool optimizePathKOMO();
+            
+            bool optimizePathCHOMP();
+
+            bool optimizePathSTOMP();
         };
         
     } // namespace geometric
