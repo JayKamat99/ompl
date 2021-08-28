@@ -11,16 +11,16 @@ bool ompl::geometric::PathSimplifier::optimizePathKOMO(PathGeometric &path)
 {
     arrA configs;
     //To copy the path to arrA Config from states.
-    for (auto &s : path.getStates()) {
-      const auto *State = s->as<ob::SE2StateSpace::StateType>();
-
-      arr x_query = arr
-      {
-        State->getX(),
-        State->getY(),
-        State->getYaw()
-      };
-      configs.append(x_query);
+	const base::StateSpace *space(si_->getStateSpace().get());
+    for (auto state : path.getStates())
+    {
+		arr config;
+		std::vector<double> reals;
+        space->copyToReals(reals, state);
+		for (double r : reals){
+			config.append(r);
+		}
+		configs.append(config);
     }
 
     std::cout << configs.N << "before" << std::endl;
@@ -41,7 +41,7 @@ bool ompl::geometric::PathSimplifier::optimizePathKOMO(PathGeometric &path)
     komo.setTiming(1., configs.N, 5., 2);
     komo.add_qControlObjective({}, 1, 50.);
 
-    std::cout << configs << std::endl;
+    // std::cout << configs << std::endl;
     komo.addObjective({1.}, FS_qItself, {}, OT_eq, {1}, configs(configs.N-1), 0);
     komo.addObjective({}, FS_accumulatedCollisions, {}, OT_eq, {1.});
     komo.add_collision(true);
@@ -60,13 +60,15 @@ bool ompl::geometric::PathSimplifier::optimizePathKOMO(PathGeometric &path)
     std::cout << configs.N << "after" << std::endl;
     
     //copy the final config back to states
-    int i=0;
-    for (auto &s : path.getStates()) {
-        auto *State = s->as<ob::SE2StateSpace::StateType>();
-        State->setX((configs(i))(0));
-        State->setY((configs(i))(1));
-        State->setYaw((configs(i))(2));
-        i++;
+	int i=0;
+	for (auto state : path.getStates())
+    {
+		std::vector<double> reals;
+		for (double r : configs(i)){
+			reals.push_back(r);
+		}
+		space->copyFromReals(state, reals);
+		i++;
     }
 
     return true; //this is useless
