@@ -25,9 +25,15 @@ bool ompl::geometric::PathSimplifier::optimizePathKOMO(PathGeometric &path)
 
     std::cout << configs.N << "before" << std::endl;
 
-    auto filename = "/home/jay/git/optimization-course/examples/Models/2D_bot.g";
+    // Create a text string, which is used to output the text file
+    std::string filename;
+    ifstream MyReadFile("/home/jay/git/optimization-course/examples/Models/Configuration.txt");
+    getline (MyReadFile, filename);
+    MyReadFile.close(); 
+
+    // set state validity checking based on KOMO
     rai::Configuration C;
-    C.addFile(filename);
+    C.addFile(filename.c_str());
     KOMO komo;
     komo.verbose = 0;
     komo.setModel(C, true);
