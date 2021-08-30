@@ -45,6 +45,7 @@
 #include "ompl/util/ClassForward.h"
 #include "ompl/util/RandomNumbers.h"
 #include "ompl/util/Console.h"
+#include "ompl/geometric/PathOptimizer.h"
 #include <limits>
 
 namespace ompl
@@ -247,7 +248,9 @@ namespace ompl
 
             /** \brief Call KOMO to optimizr the path
             */
-           bool optimizePathKOMO(PathGeometric &path);
+           bool optimize(PathGeometric &path){
+               return (perturbPath(path, 0.1));
+           }
 
         protected:
 

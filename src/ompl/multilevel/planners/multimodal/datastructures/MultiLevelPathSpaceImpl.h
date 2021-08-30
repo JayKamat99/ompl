@@ -11,12 +11,10 @@
 #include <ompl/util/Time.h>
 #include <ompl/util/Exception.h>
 #include <queue>
-#include <limits>
 
 using namespace ompl::multilevel;
 
-static double dInf = std::numeric_limits<double>::infinity();
-// static double dInf = 100000;
+const double dInf = std::numeric_limits<double>::infinity();
 
 template <class T>
 ompl::multilevel::MultiLevelPathSpace<T>::MultiLevelPathSpace(std::vector<base::SpaceInformationPtr> &siVec,

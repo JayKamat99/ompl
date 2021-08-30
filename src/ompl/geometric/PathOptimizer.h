@@ -4,6 +4,10 @@
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/goals/GoalSampleableRegion.h>
 #include <ompl/base/OptimizationObjective.h>
+#include <ompl/geometric/PathGeometric.h>
+#include <ompl/base/OptimizationObjective.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/goals/GoalSampleableRegion.h>
 
 namespace ompl
 {
@@ -13,21 +17,17 @@ namespace ompl
 
         class PathOptimizer
         {
-        private:
-            /* data */
         public:
-            PathOptimizer(base::SpaceInformationPtr si, const base::GoalPtr &goal = ompl::base::GoalPtr(), const base::OptimizationObjectivePtr& obj=nullptr);
+            PathOptimizer(base::SpaceInformationPtr si);
             virtual ~PathOptimizer() = default;
 
-            bool optimizePathKOMO();
-            
-            bool optimizePathCHOMP();
+            virtual bool optimize(PathGeometric &path)=0;
 
-            bool optimizePathSTOMP();
+        protected:
+            /** \brief The space information this path simplifier uses */
+            base::SpaceInformationPtr si_;
         };
-        
     } // namespace geometric
-    
 } // namespace ompl
 
 

@@ -368,7 +368,7 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     }else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        optimizer_->optimizePathKOMO(gpath);
+        optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
         // valid = optimizer_->simplifyMax(gpath);
@@ -384,11 +384,11 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     //     valid = false;
     // }
 
-    // if(!valid)
-    // {
-    //     gpath = pathOld;
-    //     OMPL_ERROR("RESTORED PATH (cost %.2f -> %.2f -> %.2f)", costOld, costNew, getPathCost(gpath));
-    // }
+    if(!valid)
+    {
+        gpath = pathOld;
+        OMPL_ERROR("RESTORED PATH (cost %.2f -> %.2f -> %.2f)", costOld, costNew, getPathCost(gpath));
+    }
 
     return;
 
