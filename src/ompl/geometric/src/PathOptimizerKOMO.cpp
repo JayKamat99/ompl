@@ -7,21 +7,26 @@
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
+ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr si): si_(std::move(si)) {}
+
 bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 {
+	std::cout << "Yay! you did it!" << std::endl;
+	return true;
+
 	arrA configs;
 	//To copy the path to arrA Configs from states.
 	const base::StateSpace *space(si_->getStateSpace().get());
-    for (auto state : path.getStates())
-    {
-		arr config;
-		std::vector<double> reals;
-    	space->copyToReals(reals, state);
-		for (double r : reals){
-			config.append(r);
-		}
-		configs.append(config);
-    }
+	for (auto state : path.getStates())
+		{
+			arr config;
+			std::vector<double> reals;
+			space->copyToReals(reals, state);
+			for (double r : reals){
+				config.append(r);
+			}
+			configs.append(config);
+	}
 
     std::cout << configs.N << "before" << std::endl;
 
@@ -31,7 +36,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     getline (MyReadFile, filename);
     MyReadFile.close(); 
 
-    // set state validity checking based on KOMO
+    // setup KOMO
     rai::Configuration C;
     C.addFile(filename.c_str());
     KOMO komo;

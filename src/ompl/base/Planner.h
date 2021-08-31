@@ -46,10 +46,13 @@
 #include "ompl/util/Console.h"
 #include "ompl/util/Time.h"
 #include "ompl/util/ClassForward.h"
+#include "ompl/geometric/PathOptimizer.h"
 #include <functional>
 #include <boost/concept_check.hpp>
 #include <string>
 #include <map>
+
+namespace og = ompl::geometric;
 
 namespace ompl
 {
@@ -365,6 +368,12 @@ namespace ompl
                 return plannerProgressProperties_;
             }
 
+            /** \brief Set Optimizer */
+            void setOptimizer(og::PathOptimizerPtr optimizer)
+            {
+                pathOptimizer_ = optimizer;
+            }
+
             /** \brief Print properties of the motion planner */
             virtual void printProperties(std::ostream &out) const;
 
@@ -438,6 +447,9 @@ namespace ompl
 
             /** \brief Flag indicating whether setup() has been called */
             bool setup_;
+
+            /** \brief Initiallize pathOptimizer_ */
+            og::PathOptimizerPtr pathOptimizer_;
         };
 
         /** \brief Definition of a function that can allocate a planner */

@@ -5,6 +5,4 @@
 
 namespace ob = ompl::base;
 
-ompl::geometric::PathOptimizer::PathOptimizer(base::SpaceInformationPtr si)
-  : si_(std::move(si))
-{}
+ompl::geometric::PathOptimizer::PathOptimizer(){}

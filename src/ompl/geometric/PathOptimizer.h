@@ -18,14 +18,10 @@ namespace ompl
         class PathOptimizer
         {
         public:
-            PathOptimizer(base::SpaceInformationPtr si);
+            PathOptimizer();
             virtual ~PathOptimizer() = default;
 
             virtual bool optimize(PathGeometric &path)=0;
-
-        protected:
-            /** \brief The space information this path simplifier uses */
-            base::SpaceInformationPtr si_;
         };
     } // namespace geometric
 } // namespace ompl
