@@ -368,8 +368,10 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     }else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        // pathOptimizer_->optimize(gpath);
-        optimizer_->optimize(gpath);
+        std::cout << "Executing" << std::endl;
+        pathOptimizer_->optimize(gpath);
+        std::cout << "Executed" << std::endl;
+        // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
         // valid = optimizer_->simplifyMax(gpath);

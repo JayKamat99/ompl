@@ -248,9 +248,11 @@ namespace ompl
 
             /** \brief Call KOMO to optimizr the path
             */
-           bool optimize(PathGeometric &path){
-               return (perturbPath(path, 0.1));
-           }
+            bool optimize(PathGeometric &gpath){
+                gpath.subdivide();
+                perturbPath(gpath, 0.1);
+                return(simplifyMax(gpath));
+            }
 
         protected:
 

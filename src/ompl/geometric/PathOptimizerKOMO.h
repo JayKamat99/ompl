@@ -9,6 +9,8 @@ namespace ompl
 {
     namespace geometric
     {
+        OMPL_CLASS_FORWARD(PathOptimizerKOMO);
+
         class PathOptimizerKOMO : public PathOptimizer
         {
         private:
