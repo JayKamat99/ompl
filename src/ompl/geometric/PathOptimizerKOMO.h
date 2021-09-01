@@ -13,11 +13,11 @@ namespace ompl
         {
         private:
             /* data */
-            
+
         public:
             // using PathOptimizer::PathOptimizer;
             PathOptimizerKOMO(base::SpaceInformationPtr si);
-            ~PathOptimizerKOMO();
+            virtual ~PathOptimizerKOMO() = default;
 
             bool optimize(PathGeometric &path) override;
 
