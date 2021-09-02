@@ -37,6 +37,14 @@ namespace ompl
 
         public:
 
+            void setOptimizer(og::PathOptimizerPtr optimizer) override{
+                for (unsigned int k = 0; k < this->bundleSpaces_.size(); k++)
+                {
+                    this->bundleSpaces_.at(k)->setOptimizer(optimizer);
+                }
+                BaseT::setOptimizer(optimizer);
+            }
+
             const bool DEBUG{false};
 
             MultiLevelPathSpace(std::vector<base::SpaceInformationPtr> &siVec,

@@ -11,9 +11,6 @@ ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr 
 
 bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 {
-	std::cout << "Yay! you did it!" << std::endl;
-	return true;
-
 	arrA configs;
 	//To copy the path to arrA Configs from states.
 	const base::StateSpace *space(si_->getStateSpace().get());
@@ -47,7 +44,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     komo.add_qControlObjective({}, 1, 50.);
 
     // std::cout << configs << std::endl;
-    komo.addObjective({1.}, FS_qItself, {}, OT_eq, {1}, configs(configs.N-1), 0);
+    komo.addObjective({1.}, FS_qItself, {}, OT_eq, {10}, configs(configs.N-1), 0);
     komo.addObjective({}, FS_accumulatedCollisions, {}, OT_eq, {1.});
     komo.add_collision(true);
 

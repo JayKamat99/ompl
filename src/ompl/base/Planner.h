@@ -369,7 +369,7 @@ namespace ompl
             }
 
             /** \brief Set Optimizer */
-            void setOptimizer(og::PathOptimizerPtr optimizer)
+            virtual void setOptimizer(og::PathOptimizerPtr optimizer)
             {
                 pathOptimizer_ = optimizer;
             }

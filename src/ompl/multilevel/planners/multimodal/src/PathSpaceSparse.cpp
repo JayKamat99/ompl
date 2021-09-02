@@ -10,6 +10,8 @@
 #include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
 
 #include <ompl/geometric/PathSimplifier.h>
+#include <ompl/geometric/PathOptimizer.h>
+#include <ompl/geometric/PathOptimizerKOMO.h>
 #include <ompl/tools/config/SelfConfig.h>
 #include <ompl/datastructures/NearestNeighbors.h>
 #include <ompl/util/Exception.h>
@@ -132,6 +134,8 @@ void PathSpaceSparse::grow()
     optimizePath(gpath);
 
     double cost = getPathCost(gpath);
+
+    // PathConverged(index);
 
     updatePath(index, path, cost);
 
@@ -284,7 +288,7 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Verte
 
         // gpath.interpolate();
 
-        optimizePath(gpath);
+        // optimizePath(gpath);
         double pathcost = getPathCost(gpath);
 
         bool isVisible = false;
@@ -368,9 +372,10 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     }else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        std::cout << "Executing" << std::endl;
+        // std::cout << "Executing" << std::endl;
         pathOptimizer_->optimize(gpath);
-        std::cout << "Executed" << std::endl;
+        // pathOptimizer_->optimize();
+        // std::cout << "Executed" << std::endl;
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
@@ -379,7 +384,7 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         // optimizer_->reduceVertices(gpath);
         // optimizer_->collapseCloseVertices(gpath);
     }
-    // gpath.interpolate();
+    gpath.interpolate();
 
     double costNew = getPathCost(gpath);
     // if(costNew > (costOld))
