@@ -52,10 +52,13 @@ namespace ompl
             void init();
 
             bool isConverged() const;
+            bool isConverged_Idempotent() const;
 
             // PathPiecewiseLinear *customRepresentation{nullptr};
 
             int numberOfIdempotentUpdates_{0};
+
+            bool mutable isConverged_{false};
 
             void setNsubtresholdIterations(int);
 

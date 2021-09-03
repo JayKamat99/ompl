@@ -74,9 +74,14 @@ void LocalMinimaNode::setNsubtresholdIterations(int N)
     NsubtresholdIterations_ = N;
 }
 
-bool LocalMinimaNode::isConverged() const
+bool LocalMinimaNode::isConverged_Idempotent() const
 {
     return (numberOfIdempotentUpdates_ > 10);
+}
+
+bool LocalMinimaNode::isConverged() const
+{
+    return (isConverged_);
 }
 
 const ompl::base::PathPtr &LocalMinimaNode::asPathPtr() const

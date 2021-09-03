@@ -63,7 +63,7 @@ namespace ompl
         /** \brief This class contains routines that attempt to simplify geometric paths.
 
             Some of these are in fact routines that shorten the path, and do not necessarily make it smoother. */
-        class PathSimplifier
+        class PathSimplifier : public PathOptimizer
         {
         public:
             /** \brief Create an instance for a specified space information. Optionally, a GoalSampleableRegion may be
@@ -248,10 +248,12 @@ namespace ompl
 
             /** \brief Call KOMO to optimizr the path
             */
-            bool optimize(PathGeometric &gpath){
+            void optimize(PathGeometric &gpath){
+                isStepWise = true;
                 gpath.subdivide();
                 perturbPath(gpath, 0.1);
-                return(simplifyMax(gpath));
+                simplifyMax(gpath);
+                gpath.interpolate();
             }
 
         protected:

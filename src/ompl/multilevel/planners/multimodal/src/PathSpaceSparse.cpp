@@ -1,6 +1,7 @@
 #include <ompl/multilevel/planners/multimodal/PathSpaceSparse.h>
 #include <ompl/multilevel/planners/multimodal/datastructures/PathSpaceMetrics.h>
 #include <ompl/multilevel/planners/multimodal/datastructures/LocalMinimaTree.h>
+#include <ompl/multilevel/planners/multimodal/datastructures/LocalMinimaNode.h>
 #include <ompl/multilevel/datastructures/graphsampler/GraphSampler.h>
 #include <ompl/multilevel/datastructures/PlannerDataVertexAnnotated.h>
 
@@ -133,9 +134,25 @@ void PathSpaceSparse::grow()
 
     optimizePath(gpath);
 
-    double cost = getPathCost(gpath);
+	// check if path has converged
 
-    // PathConverged(index);
+    if (pathOptimizer_->isStepWise){
+        const LocalMinimaNode *node = 
+        localMinimaTree_->getPath(bundleSpaceGraph_->getLevel(), index);
+
+		//check if path has converged
+        if(node->isConverged_Idempotent())
+			node->isConverged_ = true;
+    }
+    else{
+        //path has converged
+		const LocalMinimaNode *node = 
+        localMinimaTree_->getPath(bundleSpaceGraph_->getLevel(), index);
+
+		node->isConverged_ = true;
+    }
+
+    double cost = getPathCost(gpath);
 
     updatePath(index, path, cost);
 
@@ -372,10 +389,7 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     }else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        // std::cout << "Executing" << std::endl;
         pathOptimizer_->optimize(gpath);
-        // pathOptimizer_->optimize();
-        // std::cout << "Executed" << std::endl;
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
@@ -384,7 +398,6 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         // optimizer_->reduceVertices(gpath);
         // optimizer_->collapseCloseVertices(gpath);
     }
-    gpath.interpolate();
 
     double costNew = getPathCost(gpath);
     // if(costNew > (costOld))

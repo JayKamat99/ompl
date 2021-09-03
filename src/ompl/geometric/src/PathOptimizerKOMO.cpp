@@ -9,7 +9,7 @@ namespace og = ompl::geometric;
 
 ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr si): si_(std::move(si)) {}
 
-bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
+void ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 {
 	arrA configs;
 	//To copy the path to arrA Configs from states.
@@ -72,6 +72,5 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 		space->copyFromReals(state, reals);
 		i++;
     }
-
-    return true; //this is useless
+	isStepWise = false;
 }
