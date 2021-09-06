@@ -21,7 +21,7 @@ namespace ompl
             PathOptimizerKOMO(base::SpaceInformationPtr si);
             virtual ~PathOptimizerKOMO() = default;
 
-            void optimize(PathGeometric &path) override;
+            bool optimize(PathGeometric &path) override;
 
         protected:
             base::SpaceInformationPtr si_;

@@ -248,12 +248,13 @@ namespace ompl
 
             /** \brief Call KOMO to optimizr the path
             */
-            void optimize(PathGeometric &gpath){
+            bool optimize(PathGeometric &gpath) override{
                 isStepWise = true;
                 gpath.subdivide();
                 perturbPath(gpath, 0.1);
                 simplifyMax(gpath);
                 gpath.interpolate();
+                return true;
             }
 
         protected:

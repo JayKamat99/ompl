@@ -132,9 +132,12 @@ void PathSpaceSparse::grow()
     geometric::PathGeometric &gpath = 
       static_cast<geometric::PathGeometric &>(*path);
 
-    optimizePath(gpath);
+    bool valid = optimizePath(gpath);
 
-	// check if path has converged
+    if (!valid){
+        removePath(index);
+        return;
+    }
 
     if (pathOptimizer_->isStepWise){
         const LocalMinimaNode *node = 
@@ -370,7 +373,7 @@ bool PathSpaceSparse::arePathsEquivalent(
     return (d < epsilonPathEquivalence_); 
 }
 
-void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
+bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
 { 
     //NOTES
     // * You can insert your own optimizer at this point. 
@@ -386,10 +389,11 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     if (getBundle()->getStateSpace()->getType() == base::STATE_SPACE_SO2)
     {
         // optimizer_->collapseCloseVertices(gpath);
-    }else{
+    }
+    else{
         // gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        pathOptimizer_->optimize(gpath);
+        valid = pathOptimizer_->optimize(gpath);
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
@@ -411,14 +415,14 @@ void PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         OMPL_ERROR("RESTORED PATH (cost %.2f -> %.2f -> %.2f)", costOld, costNew, getPathCost(gpath));
     }
 
-    return;
+    return valid;
 
     base::ProblemDefinitionPtr pdef = getProblemDefinition();
     base::OptimizationObjectivePtr obj = getOptimizationObjectivePtr();
     // const double rangeRatio = 0.01;
 
     if (gpath.getStateCount() < 3)
-        return;
+        return true;
 
     // unsigned int maxSteps = gpath.getStateCount();
 

@@ -21,7 +21,7 @@ namespace ompl
             PathOptimizer();
             virtual ~PathOptimizer() = default;
 
-            virtual void optimize(PathGeometric &path)=0;
+            virtual bool optimize(PathGeometric &path)=0;
 
             bool isStepWise{false};
         };

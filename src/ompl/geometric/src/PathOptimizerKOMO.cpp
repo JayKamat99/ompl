@@ -3,13 +3,14 @@
 
 #include <KOMO/komo.h>
 #include <Kin/viewer.h>
+#include <Core/graph.h>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
 ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr si): si_(std::move(si)) {}
 
-void ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
+bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 {
 	arrA configs;
 	//To copy the path to arrA Configs from states.
@@ -56,10 +57,18 @@ void ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     komo.optimize();
     // komo.view(true);
     // komo.view_play(true);
+	rai::Graph R = komo.getReport(false);
+ 	double constraint_violation = R.get<double>("eq") + R.get<double>("ineq");
+    std::cout << "Constraint Violations:" << constraint_violation << std::endl;
 
     configs = komo.getPath_q();
     
     std::cout << configs.N << "after" << std::endl;
+
+    bool isValid = true;
+    if (constraint_violation > 0.1){
+        isValid = false;
+    }
     
     //copy the final config back to states
 	int i=0;
@@ -73,4 +82,6 @@ void ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 		i++;
     }
 	isStepWise = false;
+
+    return isValid;
 }

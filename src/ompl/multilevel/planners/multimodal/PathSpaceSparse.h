@@ -54,7 +54,7 @@ namespace ompl
 
             double epsilonPathEquivalence_{0.0};
 
-            void optimizePath(geometric::PathGeometric&);
+            bool optimizePath(geometric::PathGeometric&);
 
             double getPathCost(const geometric::PathGeometric&);
 
