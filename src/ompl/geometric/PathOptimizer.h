@@ -17,11 +17,23 @@ namespace ompl
 
         class PathOptimizer
         {
+        protected:
+            double pathCost = 10000.;
+
         public:
             PathOptimizer();
             virtual ~PathOptimizer() = default;
 
             virtual bool optimize(PathGeometric &path)=0;
+
+            void setPathCost(double pathCost){
+                this->pathCost = pathCost;
+            }
+
+            double getPathCost() const{
+                std::cout << "Path Cost:" << pathCost <<std::endl;
+                return pathCost;
+            }
 
             bool isStepWise{false};
         };

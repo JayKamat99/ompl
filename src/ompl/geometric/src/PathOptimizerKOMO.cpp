@@ -83,6 +83,6 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 		i++;
     }
 	isStepWise = false;
-
+    setPathCost(R.get<double>("sos"));
     return isValid;
 }

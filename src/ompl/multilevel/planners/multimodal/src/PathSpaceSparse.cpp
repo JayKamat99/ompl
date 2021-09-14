@@ -139,9 +139,12 @@ void PathSpaceSparse::grow()
         return;
     }
 
+    double cost;
+
     if (pathOptimizer_->isStepWise){
         const LocalMinimaNode *node = 
         localMinimaTree_->getPath(bundleSpaceGraph_->getLevel(), index);
+        cost = getPathCost(gpath);
 
 		//check if path has converged
         if(node->isConverged_Idempotent())
@@ -153,9 +156,8 @@ void PathSpaceSparse::grow()
         localMinimaTree_->getPath(bundleSpaceGraph_->getLevel(), index);
 
 		node->isConverged_ = true;
+        cost = pathOptimizer_->getPathCost();
     }
-
-    double cost = getPathCost(gpath);
 
     updatePath(index, path, cost);
 
