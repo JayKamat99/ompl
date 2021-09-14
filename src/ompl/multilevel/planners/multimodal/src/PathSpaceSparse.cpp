@@ -65,9 +65,9 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 0.1; //original is 0.25 (SMLR). We used 0.15 for WAFR
-    maxFailures_ = 5000;
-    epsilonPathEquivalence_ = 0.2;
+    sparseDeltaFraction_ = 0.12; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    maxFailures_ = 50; //was previously 5000
+    epsilonPathEquivalence_ = 0.5; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
     NsubtresholdIterations_ = 100;
 

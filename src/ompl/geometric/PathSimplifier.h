@@ -246,7 +246,7 @@ namespace ompl
              * simplification */
             bool freeStates() const;
 
-            /** \brief Call KOMO to optimizr the path
+            /** \brief optimize the path
             */
             bool optimize(PathGeometric &gpath) override{
                 isStepWise = true;

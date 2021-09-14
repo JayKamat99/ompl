@@ -42,7 +42,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     komo.setModel(C, true);
     
     komo.setTiming(1., configs.N, 5., 2);
-    komo.add_qControlObjective({}, 1, 50.);
+    komo.add_qControlObjective({}, 1, 2.);
 
     // std::cout << configs << std::endl;
     komo.addObjective({1.}, FS_qItself, {}, OT_eq, {10}, configs(configs.N-1), 0);
@@ -54,6 +54,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     komo.run_prepare(0);
     // komo.view(true);
     // komo.view_play(true);
+    // komo.animateOptimization = 1;
     komo.optimize();
     // komo.view(true);
     // komo.view_play(true);
@@ -66,7 +67,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     std::cout << configs.N << "after" << std::endl;
 
     bool isValid = true;
-    if (constraint_violation > 0.1){
+    if (constraint_violation > 1){
         isValid = false;
     }
     
