@@ -1,5 +1,7 @@
 #include <ompl/geometric/PathOptimizer.h>
 #include <ompl/geometric/PathOptimizerKOMO.h>
+#include <ompl/multilevel/planners/multimodal/PathSpaceSparse.h>
+#include <ompl/multilevel/planners/multimodal/datastructures/PathSpace.h>
 
 #include <KOMO/komo.h>
 #include <Kin/viewer.h>
@@ -7,6 +9,7 @@
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
+namespace om = ompl::multilevel;
 
 ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr si): si_(std::move(si)) {}
 
@@ -54,7 +57,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     komo.run_prepare(0);
     // komo.view(true);
     // komo.view_play(true);
-    // komo.animateOptimization = 1;
+    komo.animateOptimization = 1;
     komo.optimize();
     // komo.view(true);
     // komo.view_play(true);
@@ -65,11 +68,41 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     configs = komo.getPath_q();
     
     std::cout << configs.N << "after" << std::endl;
+    // bool equal = true;
+    // for (unsigned int i = 0; i < om::PathSpace::getNumberOfPaths(); i++)
+    // {
+    //     auto pathPtr = std::dynamic_pointer_cast<ob::PathPtr>(path);
+    //     bool equal = om::PathSpaceSparse::arePathsEquivalent(pathPtr, om::PathSpace::getPathPtr(i));
+    // }
 
     bool isValid = true;
     if (constraint_violation > 1){
         isValid = false;
+        for (int i=0; i<=7; i++){
+            std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
+            komo.pathConfig.getFrame(frame.c_str())->setColor({1,0,0});
+        }
+        for (int j=0; j<10 ;j++)
+            komo.displayPath("Infeasible", false);
     }
+
+    // else if (equal){
+    //     for (int i=0; i<=7; i++){
+    //         std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
+    //         komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
+    //     }
+    //     for (int j=0; j<10 ;j++)
+    //         komo.displayPath("Repeated", false);
+    // }
+
+    // else{
+    //     for (int i=0; i<=7; i++){
+    //         std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
+    //         komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
+    //     }
+    //     for (int j=0; j<10 ;j++)
+    //         komo.displayPath("New Path", false);
+    // }
     
     //copy the final config back to states
 	int i=0;
@@ -85,4 +118,54 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 	isStepWise = false;
     setPathCost(R.get<double>("sos"));
     return isValid;
+}
+
+void ompl::geometric::PathOptimizerKOMO::displayPath(PathGeometric &path, int value)
+{
+    arrA configs;
+	//To copy the path to arrA Configs from states.
+	const base::StateSpace *space(si_->getStateSpace().get());
+	for (auto state : path.getStates())
+		{
+			arr config;
+			std::vector<double> reals;
+			space->copyToReals(reals, state);
+			for (double r : reals){
+				config.append(r);
+			}
+			configs.append(config);
+	}
+
+    // Create a text string, which is used to output the text file
+    std::string filename;
+    ifstream MyReadFile("/home/jay/git/optimization-course/examples/Models/Configuration.txt");
+    getline (MyReadFile, filename);
+    MyReadFile.close(); 
+
+    // setup KOMO
+    rai::Configuration C;
+    C.addFile(filename.c_str());
+    KOMO komo;
+    komo.verbose = 0;
+    komo.setModel(C, true);
+
+    komo.setTiming(1., configs.N, 5., 2);
+    komo.add_qControlObjective({}, 1, 2.);
+
+    komo.initWithWaypoints(configs, path.getStateCount(), false);
+    const char* txt = NULL;
+
+    for (int i=0; i<=7; i++){
+        std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
+        if (value == 1){
+            komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
+            txt = "Repeated";
+        }
+        else{
+            komo.pathConfig.getFrame(frame.c_str())->setColor({0,1,0});
+            txt = "New Solution";
+        }
+    }
+    for (int j=0; j<10 ;j++)
+        komo.displayPath(txt, false);
 }

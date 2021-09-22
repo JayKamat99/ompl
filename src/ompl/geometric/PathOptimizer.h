@@ -35,6 +35,8 @@ namespace ompl
                 return pathCost;
             }
 
+            virtual void displayPath(PathGeometric &path, int value){}
+
             bool isStepWise{false};
         };
     } // namespace geometric
