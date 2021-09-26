@@ -55,12 +55,8 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     //use configs to initialize with waypoints
     komo.initWithWaypoints(configs, path.getStateCount(), false);
     komo.run_prepare(0);
-    // komo.view(true);
-    // komo.view_play(true);
     komo.animateOptimization = 1;
     komo.optimize();
-    // komo.view(true);
-    // komo.view_play(true);
 	rai::Graph R = komo.getReport(false);
  	double constraint_violation = R.get<double>("eq") + R.get<double>("ineq");
     std::cout << "Constraint Violations:" << constraint_violation << std::endl;
@@ -68,12 +64,6 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     configs = komo.getPath_q();
     
     std::cout << configs.N << "after" << std::endl;
-    // bool equal = true;
-    // for (unsigned int i = 0; i < om::PathSpace::getNumberOfPaths(); i++)
-    // {
-    //     auto pathPtr = std::dynamic_pointer_cast<ob::PathPtr>(path);
-    //     bool equal = om::PathSpaceSparse::arePathsEquivalent(pathPtr, om::PathSpace::getPathPtr(i));
-    // }
 
     bool isValid = true;
     if (constraint_violation > 1){
@@ -86,24 +76,6 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
             komo.displayPath("Infeasible", false);
     }
 
-    // else if (equal){
-    //     for (int i=0; i<=7; i++){
-    //         std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
-    //         komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
-    //     }
-    //     for (int j=0; j<10 ;j++)
-    //         komo.displayPath("Repeated", false);
-    // }
-
-    // else{
-    //     for (int i=0; i<=7; i++){
-    //         std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
-    //         komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
-    //     }
-    //     for (int j=0; j<10 ;j++)
-    //         komo.displayPath("New Path", false);
-    // }
-    
     //copy the final config back to states
 	int i=0;
 	for (auto state : path.getStates())
@@ -120,7 +92,7 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     return isValid;
 }
 
-void ompl::geometric::PathOptimizerKOMO::displayPath(PathGeometric &path, int value)
+void ompl::geometric::PathOptimizerKOMO::displayPath(PathGeometric &path, const std::string &txt) const
 {
     arrA configs;
 	//To copy the path to arrA Configs from states.
@@ -153,19 +125,14 @@ void ompl::geometric::PathOptimizerKOMO::displayPath(PathGeometric &path, int va
     komo.add_qControlObjective({}, 1, 2.);
 
     komo.initWithWaypoints(configs, path.getStateCount(), false);
-    const char* txt = NULL;
 
     for (int i=0; i<=7; i++){
         std::string frame = "iiwa_link_"+std::to_string(i)+"_1";
-        if (value == 1){
+        if (txt == "Repeated")
             komo.pathConfig.getFrame(frame.c_str())->setColor({1,1,0});
-            txt = "Repeated";
-        }
-        else{
+        else
             komo.pathConfig.getFrame(frame.c_str())->setColor({0,1,0});
-            txt = "New Solution";
-        }
     }
     for (int j=0; j<10 ;j++)
-        komo.displayPath(txt, false);
+        komo.displayPath(txt.c_str(), false);
 }

@@ -35,7 +35,7 @@ namespace ompl
                 return pathCost;
             }
 
-            virtual void displayPath(PathGeometric &path, int value){}
+            virtual void displayPath(PathGeometric &path, const std::string &txt) const{}
 
             bool isStepWise{false};
         };

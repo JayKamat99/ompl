@@ -65,8 +65,8 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 20; //original is 0.25 (SMLR). We used 0.15 for WAFR
-    maxFailures_ = 50; //was previously 5000
+    sparseDeltaFraction_ = 2; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    maxFailures_ = 5000; //was previously 5000
     epsilonPathEquivalence_ = 0.5; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
     NsubtresholdIterations_ = 100;
@@ -169,13 +169,13 @@ void PathSpaceSparse::grow()
         equal = arePathsEquivalent(path, getPathPtr(i));
         if(equal)
         {
-            pathOptimizer_->displayPath(gpath, 1);
+            pathOptimizer_->displayPath(gpath, "Repeated");
             removePath(index);
             break;
         }
     }
     if(!equal)
-        pathOptimizer_->displayPath(gpath, 0);
+        pathOptimizer_->displayPath(gpath, "New Solution");
 }
 
 unsigned int PathSpaceSparse::getRandomNonConvergedPathIndex()

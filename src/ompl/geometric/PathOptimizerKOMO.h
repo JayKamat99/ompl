@@ -23,7 +23,7 @@ namespace ompl
 
             bool optimize(PathGeometric &path) override;
 
-            void displayPath(PathGeometric &path, int value);
+            void displayPath(PathGeometric &path, const std::string &txt) const;
 
         protected:
             base::SpaceInformationPtr si_;
