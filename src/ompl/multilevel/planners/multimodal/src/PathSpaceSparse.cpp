@@ -135,11 +135,13 @@ void PathSpaceSparse::grow()
     bool valid = optimizePath(gpath);
 
     if (!valid){
+        pathOptimizer_->displayPath(gpath, "Invalid");
         removePath(index);
         return;
     }
 
     double cost;
+    bool converged(false);
 
     if (pathOptimizer_->isStepWise){
         const LocalMinimaNode *node = 
@@ -148,7 +150,10 @@ void PathSpaceSparse::grow()
 
 		//check if path has converged
         if(node->isConverged_Idempotent())
+        {
 			node->isConverged_ = true;
+            converged = true;
+        }
     }
     else{
         //path has converged
@@ -156,6 +161,7 @@ void PathSpaceSparse::grow()
         localMinimaTree_->getPath(bundleSpaceGraph_->getLevel(), index);
 
 		node->isConverged_ = true;
+        converged = true;
         cost = pathOptimizer_->getPathCost();
     }
 
@@ -174,7 +180,7 @@ void PathSpaceSparse::grow()
             break;
         }
     }
-    if(!equal)
+    if(!equal && converged)
         pathOptimizer_->displayPath(gpath, "New Solution");
 }
 
@@ -418,8 +424,12 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
 
     if(!valid)
     {
-        gpath = pathOld;
-        OMPL_ERROR("RESTORED PATH (cost %.2f -> %.2f -> %.2f)", costOld, costNew, getPathCost(gpath));
+        if (pathOptimizer_->isStepWise)
+        {
+            gpath = pathOld;
+            OMPL_ERROR("RESTORED PATH (cost %.2f -> %.2f -> %.2f)", costOld, costNew, getPathCost(gpath));
+        }
+        else OMPL_ERROR("Invalid Path");
     }
 
     return valid;

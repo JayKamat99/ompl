@@ -20,8 +20,10 @@ namespace ompl
         protected:
             double pathCost = 10000.;
 
+            base::SpaceInformationPtr si_;
+
         public:
-            PathOptimizer();
+            PathOptimizer() = default;
             virtual ~PathOptimizer() = default;
 
             virtual bool optimize(PathGeometric &path)=0;
@@ -35,7 +37,9 @@ namespace ompl
                 return pathCost;
             }
 
-            virtual void displayPath(PathGeometric &path, const std::string &txt) const{}
+            void setSI(base::SpaceInformationPtr si);
+
+            virtual void displayPath(PathGeometric &path, const std::string &txt) const;
 
             bool isStepWise{false};
         };

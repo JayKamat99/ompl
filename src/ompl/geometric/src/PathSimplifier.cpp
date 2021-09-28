@@ -47,8 +47,9 @@
 
 ompl::geometric::PathSimplifier::PathSimplifier(base::SpaceInformationPtr si, const base::GoalPtr &goal,
                                                 const base::OptimizationObjectivePtr& obj)
-  : si_(std::move(si)), freeStates_(true)
+  : /*si_(std::move(si)),*/ si_(si), freeStates_(true)
 {
+    ompl::geometric::PathOptimizer::setSI(si);
     if (goal)
     {
         gsr_ = std::dynamic_pointer_cast<base::GoalSampleableRegion>(goal);

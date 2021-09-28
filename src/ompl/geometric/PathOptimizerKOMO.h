@@ -22,11 +22,6 @@ namespace ompl
             virtual ~PathOptimizerKOMO() = default;
 
             bool optimize(PathGeometric &path) override;
-
-            void displayPath(PathGeometric &path, const std::string &txt) const;
-
-        protected:
-            base::SpaceInformationPtr si_;
         };  
     } // namespace  geometric
 } //namespace ompl
