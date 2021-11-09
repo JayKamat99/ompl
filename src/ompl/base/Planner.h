@@ -42,6 +42,7 @@
 #include "ompl/base/PlannerData.h"
 #include "ompl/base/PlannerStatus.h"
 #include "ompl/base/PlannerTerminationCondition.h"
+#include <multimodal_optimizers/PathOptimizer.h>
 #include "ompl/base/GenericParam.h"
 #include "ompl/util/Console.h"
 #include "ompl/util/Time.h"
@@ -365,6 +366,12 @@ namespace ompl
                 return plannerProgressProperties_;
             }
 
+            /** \brief Set Optimizer */
+            virtual void setOptimizer(ompl::geometric::PathOptimizerPtr optimizer)
+            {
+                pathOptimizer_ = optimizer;
+            }
+
             /** \brief Print properties of the motion planner */
             virtual void printProperties(std::ostream &out) const;
 
@@ -438,6 +445,9 @@ namespace ompl
 
             /** \brief Flag indicating whether setup() has been called */
             bool setup_;
+
+            /** \brief Initiallize pathOptimizer_ */
+            ompl::geometric::PathOptimizerPtr pathOptimizer_;
         };
 
         /** \brief Definition of a function that can allocate a planner */
