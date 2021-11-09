@@ -65,9 +65,9 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 2; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    sparseDeltaFraction_ = 0.1; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000; //was previously 5000
-    epsilonPathEquivalence_ = 0.5; //was previously 0.2
+    epsilonPathEquivalence_ = 0.2; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
     NsubtresholdIterations_ = 100;
 
@@ -82,6 +82,8 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     {
         static_cast<BundleSpaceGraph *>(getChild())->getGraphSampler()->disablePathBias();
     }
+
+    addPlannerProgressProperty("best cost REAL", [this] { return /* std::to_string(2.0) */ bestCostProperty(); });
 }
 
 PathSpaceSparse::~PathSpaceSparse()
@@ -135,7 +137,7 @@ void PathSpaceSparse::grow()
     bool valid = optimizePath(gpath);
 
     if (!valid){
-        pathOptimizer_->displayPath(gpath, "Invalid");
+        // pathOptimizer_->displayPath(gpath, "Invalid");
         removePath(index);
         return;
     }
@@ -175,13 +177,13 @@ void PathSpaceSparse::grow()
         equal = arePathsEquivalent(path, getPathPtr(i));
         if(equal)
         {
-            pathOptimizer_->displayPath(gpath, "Repeated");
+            // pathOptimizer_->displayPath(gpath, "Repeated");
             removePath(index);
             break;
         }
     }
-    if(!equal && converged)
-        pathOptimizer_->displayPath(gpath, "New Solution");
+    // if(!equal && converged)
+    //     pathOptimizer_->displayPath(gpath, "New Solution");
 }
 
 unsigned int PathSpaceSparse::getRandomNonConvergedPathIndex()

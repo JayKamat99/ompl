@@ -13,10 +13,13 @@ namespace om = ompl::multilevel;
 
 ompl::geometric::PathOptimizerKOMO::PathOptimizerKOMO(base::SpaceInformationPtr si){
     ompl::geometric::PathOptimizer::setSI(si);
+    // KOMO komo; //initialize KOMO here
 }
 
 bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 {
+    // static int PathNumber = 1;
+    // std::string OutputFileName = "/home/jay/git/optimization-course/examples/Manipulator/Paths/path[" +std::to_string(PathNumber++) + "].txt";
 	arrA configs;
 	//To copy the path to arrA Configs from states.
 	const base::StateSpace *space(si_->getStateSpace().get());
@@ -31,11 +34,17 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
 			configs.append(config);
 	}
 
-    std::cout << configs.N << "before" << std::endl;
+    // std::ofstream out(OutputFileName);
+    // for (unsigned int i = 0; i<configs.N; i++){
+    //     out << configs(i) << "\n";
+    // }
+    // out.close();
+
+    // std::cout << configs.N << "before" << std::endl;
 
     // Create a text string, which is used to output the text file
     std::string filename;
-    ifstream MyReadFile("/home/jay/git/optimization-course/examples/Models/Configuration.txt");
+    ifstream MyReadFile("/home/jay/mt-multimodal_optimization/Models/Configuration.txt");
     getline (MyReadFile, filename);
     MyReadFile.close(); 
 
@@ -57,15 +66,15 @@ bool ompl::geometric::PathOptimizerKOMO::optimize(PathGeometric &path)
     //use configs to initialize with waypoints
     komo.initWithWaypoints(configs, path.getStateCount(), false);
     komo.run_prepare(0);
-    komo.animateOptimization = 1;
+    komo.animateOptimization = 0;
     komo.optimize();
 	rai::Graph R = komo.getReport(false);
  	double constraint_violation = R.get<double>("eq") + R.get<double>("ineq");
-    std::cout << "Constraint Violations:" << constraint_violation << std::endl;
+    // std::cout << "Constraint Violations:" << constraint_violation << std::endl;
 
     configs = komo.getPath_q();
     
-    std::cout << configs.N << "after" << std::endl;
+    // std::cout << configs.N << "after" << std::endl;
 
     bool isValid = true;
     if (constraint_violation > 1){

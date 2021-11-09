@@ -33,6 +33,8 @@ ompl::multilevel::MultiLevelPathSpace<T>::MultiLevelPathSpace(std::vector<base::
 
     setExtensionStrategy(ExtensionStrategy::MANUAL);
     setExtensionStrategy(ExtensionStrategy::AUTOMATIC_DEPTH_FIRST);
+
+    addPlannerProgressProperty("best cost REAL", [this] { return std::to_string(2.0) /* bestCostProperty() */; });
 }
 
 template <class T>

@@ -33,7 +33,7 @@ namespace ompl
             }
 
             double getPathCost() const{
-                std::cout << "Path Cost:" << pathCost <<std::endl;
+                // std::cout << "Path Cost:" << pathCost <<std::endl;
                 return pathCost;
             }
 

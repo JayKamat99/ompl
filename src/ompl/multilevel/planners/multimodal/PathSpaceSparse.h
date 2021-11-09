@@ -49,6 +49,12 @@ namespace ompl
 
             unsigned int getRandomNonConvergedPathIndex();
 
+            double bestCost() const
+            {
+                // return bestCost_;
+                return 1.00;
+            }
+
         protected:
             double bestCost_{std::numeric_limits<double>::infinity()};
 
@@ -62,6 +68,11 @@ namespace ompl
             getNearestGoalVertex(const std::pair<BundleSpaceGraph::Edge, bool> &edge);
             const Vertex 
             getNearestStartVertex(const std::pair<BundleSpaceGraph::Edge, bool> &edge);
+
+            std::string bestCostProperty() const
+            {
+                return std::to_string(bestCost()/* .value() */);
+            }
         };
     }  // namespace multilevel
 }  // namespace ompl
