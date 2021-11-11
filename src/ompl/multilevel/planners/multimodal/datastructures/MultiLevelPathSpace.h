@@ -76,6 +76,13 @@ namespace ompl
 
             ExtensionStrategy extensionStrategy_;
 
+            std::string bestCostProperty() const
+            {
+                return std::to_string(bestCost_);
+            }
+
+            double bestCost_ = std::numeric_limits<double>::infinity();
+
         };
     }
 }

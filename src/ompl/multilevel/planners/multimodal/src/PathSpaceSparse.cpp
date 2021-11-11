@@ -83,7 +83,7 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
         static_cast<BundleSpaceGraph *>(getChild())->getGraphSampler()->disablePathBias();
     }
 
-    addPlannerProgressProperty("best cost REAL", [this] { return /* std::to_string(2.0) */ bestCostProperty(); });
+    // addPlannerProgressProperty("best cost REAL", [this] { return /* std::to_string(2.0) */ bestCostProperty(); });
 }
 
 PathSpaceSparse::~PathSpaceSparse()
@@ -168,6 +168,9 @@ void PathSpaceSparse::grow()
     }
 
     updatePath(index, path, cost);
+
+    if (cost<bestCost_) bestCost_ = cost;
+    std::cout << "bestCost_ = " << bestCost_ << std::endl;
 
     bool equal = false;
     for (unsigned int i = 0; i < getNumberOfPaths(); i++)
