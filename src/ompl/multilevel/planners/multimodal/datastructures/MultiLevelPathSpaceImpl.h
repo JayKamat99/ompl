@@ -133,8 +133,6 @@ ompl::base::PlannerStatus MultiLevelPathSpace<T>::solve(const ompl::base::Planne
         //Then exand the selected level: do random sampling with bias
         //towards the principal path restriction. 
 
-        bestCost_ = 4.0;
-
         uint K = this->bundleSpaces_.size();
 
         while (K > 0)
@@ -165,8 +163,6 @@ ompl::base::PlannerStatus MultiLevelPathSpace<T>::solve(const ompl::base::Planne
                 d_best = dj;
                 j_best = j;
               }
-              if(d_best < bestCost_)  bestCost_ = d_best;
-              std::cout << bestCost_; //this doesn't work!!
             }
             principalPathIndices.push_back(j_best);
         }
