@@ -1,8 +1,8 @@
 #include <ompl/geometric/PathOptimizer.h>
 
-#include <KOMO/komo.h>
-#include <Kin/viewer.h>
-#include <Core/graph.h>
+/* #include <KOMO/komo.h> */
+/* #include <Kin/viewer.h> */
+/* #include <Core/graph.h> */
 
 namespace ob = ompl::base;
 
@@ -11,6 +11,7 @@ void ompl::geometric::PathOptimizer::setSI(base::SpaceInformationPtr si)
     si_ = std::move(si);
 }
 
+#if 0
 void ompl::geometric::PathOptimizer::displayPath(PathGeometric &path, const std::string &txt) const
 {
 	std::cout << "We are in PathOptimizer!!" << std::endl;
@@ -59,3 +60,11 @@ void ompl::geometric::PathOptimizer::displayPath(PathGeometric &path, const std:
     for (int j=0; j<10 ;j++)
         komo.displayPath(txt.c_str(), false);
 }
+
+#else
+void ompl::geometric::PathOptimizer::displayPath(PathGeometric &path, const std::string &txt) const
+{
+}
+
+
+#endif
