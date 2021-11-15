@@ -12,7 +12,7 @@
 
 #include <ompl/geometric/PathSimplifier.h>
 #include <ompl/geometric/PathOptimizer.h>
-#include <ompl/geometric/PathOptimizerKOMO.h>
+/* #include <ompl/geometric/PathOptimizerKOMO.h> */
 #include <ompl/tools/config/SelfConfig.h>
 #include <ompl/datastructures/NearestNeighbors.h>
 #include <ompl/util/Exception.h>
