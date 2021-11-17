@@ -78,10 +78,18 @@ namespace ompl
 
             std::string bestCostProperty() const
             {
-                return std::to_string(bestCost_);
+                if (this->bundleSpaces_.at(0)->getNumberOfPaths()>0){
+                    static double bestCost_ = std::numeric_limits<double>::infinity();
+                    double cost = this->bundleSpaces_.at(0)->getBestPathCost();
+                    if (cost< bestCost_) bestCost_ = cost;
+                    return std::to_string(bestCost_);
+                }
+                else
+                    return std::to_string(std::numeric_limits<double>::infinity());
+                //TODO: bundleSpaces must return infinity cost if no path is found.
             }
 
-            double bestCost_ = std::numeric_limits<double>::infinity();
+            // double bestCost_ = std::numeric_limits<double>::infinity();
 
         };
     }

@@ -170,7 +170,7 @@ void PathSpaceSparse::grow()
     updatePath(index, path, cost);
 
     if (cost<bestCost_) bestCost_ = cost;
-    std::cout << "bestCost_ = " << bestCost_ << std::endl;
+    // std::cout << "bestCost_ = " << bestCost_ << std::endl;
 
     bool equal = false;
     for (unsigned int i = 0; i < getNumberOfPaths(); i++)
