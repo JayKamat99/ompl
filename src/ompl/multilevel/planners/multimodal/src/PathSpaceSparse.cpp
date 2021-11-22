@@ -408,9 +408,9 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         // optimizer_->collapseCloseVertices(gpath);
     }
     else{
-        for (int i=0; i<3; i++)gpath.subdivide();
+        // for (int i=0; i<3; i++)gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        // gpath.interpolate();
+        gpath.interpolate(50);
         valid = pathOptimizer_->optimize(gpath);
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
