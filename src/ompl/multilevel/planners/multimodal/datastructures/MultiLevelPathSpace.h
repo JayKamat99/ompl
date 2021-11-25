@@ -76,20 +76,19 @@ namespace ompl
 
             ExtensionStrategy extensionStrategy_;
 
-            std::string bestCostProperty() const
+            double bestCost_ = std::numeric_limits<double>::infinity();
+
+            std::string bestCostProperty()
             {
                 if (this->bundleSpaces_.at(0)->getNumberOfPaths()>0){
-                    static double bestCost_ = std::numeric_limits<double>::infinity();
                     double cost = this->bundleSpaces_.at(0)->getBestPathCost();
                     if (cost< bestCost_) bestCost_ = cost;
                     return std::to_string(bestCost_);
                 }
                 else
-                    return std::to_string(std::numeric_limits<double>::infinity());
+                    return std::to_string(bestCost_);
                 //TODO: bundleSpaces must return infinity cost if no path is found.
             }
-
-            // double bestCost_ = std::numeric_limits<double>::infinity();
 
         };
     }

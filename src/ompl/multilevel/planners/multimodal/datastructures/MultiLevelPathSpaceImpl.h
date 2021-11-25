@@ -67,6 +67,7 @@ void ompl::multilevel::MultiLevelPathSpace<T>::clear()
     BaseT::clear();
     localMinimaTree_->clear();
     current = this->bundleSpaces_.front();
+    bestCost_ = std::numeric_limits<double>::infinity();
     OMPL_INFORM("Cleared multilevel path space structure.");
 }
 template <class T>

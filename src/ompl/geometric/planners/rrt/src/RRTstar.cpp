@@ -49,6 +49,8 @@
 #include "ompl/tools/config/SelfConfig.h"
 #include "ompl/util/GeometricEquations.h"
 
+// #include <../src/path/PathCost.h>
+
 ompl::geometric::RRTstar::RRTstar(const base::SpaceInformationPtr &si)
   : base::Planner(si, "RRTstar")
 {
@@ -476,6 +478,8 @@ ompl::base::PlannerStatus ompl::geometric::RRTstar::solve(const base::PlannerTer
                     bestGoalMotion_ = goalMotions_.front();
                     bestCost_ = bestGoalMotion_->cost;
                     updatedSolution = true;
+                    // const base::PathPtr &p = pdef_->getSolutionPath(); //This is addition by Jay
+                    // bestCost_ = pathCost(static_cast<PathGeometric &>(*p));
 
                     OMPL_INFORM("%s: Found an initial solution with a cost of %.2f in %u iterations (%u "
                                 "vertices in the graph)",
@@ -493,6 +497,8 @@ ompl::base::PlannerStatus ompl::geometric::RRTstar::solve(const base::PlannerTer
                             bestGoalMotion_ = goalMotion;
                             bestCost_ = bestGoalMotion_->cost;
                             updatedSolution = true;
+                            // const base::PathPtr &p = pdef_->getSolutionPath(); //This is addition by Jay
+                            // bestCost_ = pathCost(static_cast<PathGeometric &>(*p));
 
                             // Check if it satisfies the optimization objective, if it does, break the for loop
                             if (opt_->isSatisfied(bestCost_))
