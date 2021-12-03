@@ -48,26 +48,6 @@ endif()
 source_group("OMPL Source" FILES "${OMPL_SOURCE_CODE}")
 source_group("OMPL Headers" FILES "${OMPL_HEADERS}")
 
-# add all the RAI libraries that you need...
-# add_library(RAI::Core SHARED IMPORTED) 
-# set_target_properties(RAI::Core PROPERTIES
-#   IMPORTED_LOCATION "/home/jay/git/optimization-course/rai/rai/Core/libCore.so" 
-#   INTERFACE_INCLUDE_DIRECTORIES "/home/jay/git/optimization-course/rai/rai/"
-# )
-# add_library(RAI::KOMO SHARED IMPORTED) 
-# set_target_properties(RAI::KOMO PROPERTIES
-#   IMPORTED_LOCATION "/home/jay/git/optimization-course/rai/rai/KOMO/libKOMO.so" 
-#   INTERFACE_INCLUDE_DIRECTORIES "/home/jay/git/optimization-course/rai/rai/"
-# )
-# add_library(RAI::Kin SHARED IMPORTED) 
-# set_target_properties(RAI::Kin PROPERTIES
-#   IMPORTED_LOCATION "/home/jay/git/optimization-course/rai/rai/Kin/libKin.so" 
-#   INTERFACE_INCLUDE_DIRECTORIES "/home/jay/git/optimization-course/rai/rai/"
-# )
-# add_library(RAI::RAI INTERFACE IMPORTED)
-# set_property(TARGET RAI::RAI PROPERTY
-#   INTERFACE_LINK_LIBRARIES RAI::KOMO RAI::Kin RAI::Core)
-
 # build the library
 if(MSVC)
     add_library(ompl STATIC ${OMPL_SOURCE_CODE})
@@ -80,7 +60,6 @@ target_link_libraries(ompl
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT} 
-    # RAI::RAI
     )
 
 if (OMPL_EXTENSION_ODE)

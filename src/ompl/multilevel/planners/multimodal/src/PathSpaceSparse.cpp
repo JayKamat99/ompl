@@ -65,9 +65,9 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 0.25; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    sparseDeltaFraction_ = 0.15; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000; //was previously 5000
-    epsilonPathEquivalence_ = 0.2; //was previously 0.2
+    epsilonPathEquivalence_ = 1; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
     NsubtresholdIterations_ = 100;
 
@@ -410,7 +410,7 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     else{
         // for (int i=0; i<3; i++)gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        gpath.interpolate(150);
+        gpath.interpolate(40);
         valid = pathOptimizer_->optimize(gpath);
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
