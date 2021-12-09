@@ -83,10 +83,13 @@ namespace ompl
                 if (this->bundleSpaces_.at(0)->getNumberOfPaths()>0){
                     double cost = this->bundleSpaces_.at(0)->getBestPathCost();
                     if (cost< bestCost_) bestCost_ = cost;
+                    // std::cout << "Cost: " << bestCost_ << std::endl;
                     return std::to_string(bestCost_);
                 }
-                else
+                else{
                     return std::to_string(bestCost_);
+                    // std::cout << "Cost: " << bestCost_ << std::endl;
+                }
                 //TODO: bundleSpaces must return infinity cost if no path is found.
             }
 
