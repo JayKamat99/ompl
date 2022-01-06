@@ -65,7 +65,7 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 0.15; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    sparseDeltaFraction_ = 1; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000; //was previously 5000
     epsilonPathEquivalence_ = 1; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
@@ -271,9 +271,11 @@ PathSpaceSparse::addEdge(const Vertex a, const Vertex b)
 
     const Vertex vStart = getNearestStartVertex(edge);
     const Vertex vGoal = getNearestGoalVertex(edge);
-    const Vertex v = boost::source(edge.first, getGraph());
+    const Vertex v1 = boost::source(edge.first, getGraph());
+    const Vertex v2 = boost::target(edge.first, getGraph());
 
-    checkPath(v, vStart, vGoal);
+    checkPath(v1, vStart, vGoal);
+    checkPath(v2, vStart, vGoal);
 
     return edge;
 }
@@ -297,7 +299,7 @@ ompl::base::PathPtr PathSpaceSparse::constructPath(const Vertex v, const Vertex 
     geometric::PathGeometric &gpath2 = 
       static_cast<geometric::PathGeometric &>(*path2);
     std::vector<base::State*> states = gpath2.getStates();
-    for(uint k = 0; k < states.size(); k++)
+    for(uint k = 1; k < states.size(); k++)
     {
       base::State* sk = states.at(k);
       gpath1.append(sk);
@@ -307,8 +309,40 @@ ompl::base::PathPtr PathSpaceSparse::constructPath(const Vertex v, const Vertex 
 
 void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Vertex vGoal)
 {
-  //how to best get additional (diverse) goal states?
+    //how to best get additional (diverse) goal states?
+
+    /** \brief In order to decide if the new vertex leads to a new path we need to first check if the 
+     * start and the Goal are in the same connected region. 
+     * If true, then, we need to check if the path we have added passes through the newly added edge.
+     * If this is also true, then, we check if any vertex is repeated along the path. If any vertex
+     * is repeated, we discared the path. If not the path is eligible to be added to the multi-mode
+     * databese. 
+     *****************************************************************************************/
+    
     bool eligible = sameComponent(vStart, v) && sameComponent(v, vGoal);
+    ompl::base::PathPtr path;
+    if (eligible){
+        path = constructPath(v, vStart, vGoal);
+        eligible = /* Does the path include the edge? */ true;
+        if (eligible){
+            // Elegible if no repeated edge
+            // caste it as pathgeometric and then check
+            geometric::PathGeometric &gpath = static_cast<geometric::PathGeometric &>(*path);
+            int TotalStates = gpath.getStateCount();
+            for (int i=0; i<TotalStates; i++){
+                for (int j=0; j<i; j++){
+                    if((gpath.getState(i)) == (gpath.getState(i))){ 
+                        //TODO: This is comparing pointers to states. They are obviously different
+                        eligible = false;
+                        OMPL_ERROR("Path with repeated vertices!");
+                        gpath.print(std::cout);
+                        break;
+                    }
+                }
+                if (!eligible){break;}
+            }
+        }
+    }
 
     // std::cout << "Goal states:" << goalConfigurations_.size() << std::endl;
     // std::cout << "Vertices: v=" << v << " vStart=" 
@@ -316,7 +350,6 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Verte
 
     if (eligible)
     {
-        ompl::base::PathPtr path = constructPath(v, vStart, vGoal);
         geometric::PathGeometric &gpath = 
           static_cast<geometric::PathGeometric &>(*path);
 
@@ -332,6 +365,7 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Verte
 
 
         OMPL_INFORM("** Testing path with cost %f", pathcost);
+        std::cout << "state count : " << gpath.getStateCount() << std::endl;;
         for (uint i = 0; i < getNumberOfPaths(); i++)
         {
             //NOTE: 
@@ -342,17 +376,19 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Verte
 
             isVisible = arePathsEquivalent(path, getPathPtr(i));
 
-            if (isVisible)
-            {
-                if (pathcost < PathSpace::getPathCost(i))
-                {
-                    OMPL_INFORM("Update minima %d with path.", i);
-                    updatePath(i, path, pathcost);
-                }
-                //DEBUG
-                // isVisible = false;
-                break;
-            }
+            // If new path is equivalent to some older path, do nothing!
+
+            // if (isVisible)
+            // {
+            //     if (pathcost < PathSpace::getPathCost(i))
+            //     {
+            //         OMPL_INFORM("Update minima %d with path.", i);
+            //         updatePath(i, path, pathcost);
+            //     }
+            //     //DEBUG
+            //     // isVisible = false;
+            //     break;
+            // }
         }
 
         if (!isVisible)
@@ -410,7 +446,7 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     else{
         // for (int i=0; i<3; i++)gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        gpath.interpolate(70);
+        gpath.interpolate(15);
         valid = pathOptimizer_->optimize(gpath);
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
