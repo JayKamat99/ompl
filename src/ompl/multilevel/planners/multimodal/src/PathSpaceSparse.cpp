@@ -274,8 +274,8 @@ PathSpaceSparse::addEdge(const Vertex a, const Vertex b)
     const Vertex v1 = boost::source(edge.first, getGraph());
     const Vertex v2 = boost::target(edge.first, getGraph());
 
-    checkPath(v1, vStart, vGoal);
-    checkPath(v2, vStart, vGoal);
+    checkPath(v1, v2, vStart, vGoal);
+    checkPath(v2, v1, vStart, vGoal);
 
     return edge;
 }
@@ -307,7 +307,7 @@ ompl::base::PathPtr PathSpaceSparse::constructPath(const Vertex v, const Vertex 
     return path1;
 }
 
-void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Vertex vGoal)
+void PathSpaceSparse::checkPath(const Vertex v, const Vertex v_, const Vertex vStart, const Vertex vGoal)
 {
     //how to best get additional (diverse) goal states?
 
@@ -323,19 +323,20 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex vStart, const Verte
     ompl::base::PathPtr path;
     if (eligible){
         path = constructPath(v, vStart, vGoal);
-        eligible = /* Does the path include the edge? */ true;
+        geometric::PathGeometric &gpath = static_cast<geometric::PathGeometric &>(*path);
+        int TotalStates = gpath.getStateCount();
+        auto si_ = gpath.getSpaceInformation();
+        // Does the path include new edge? It will inculde the new edge if both the vertices are present
         if (eligible){
             // Elegible if no repeated edge
             // caste it as pathgeometric and then check
-            geometric::PathGeometric &gpath = static_cast<geometric::PathGeometric &>(*path);
-            int TotalStates = gpath.getStateCount();
             for (int i=0; i<TotalStates; i++){
                 for (int j=0; j<i; j++){
-                    if((gpath.getState(i)) == (gpath.getState(i))){ 
+                    if(si_->equalStates(gpath.getState(i),gpath.getState(j))){ 
                         //TODO: This is comparing pointers to states. They are obviously different
                         eligible = false;
-                        OMPL_ERROR("Path with repeated vertices!");
-                        gpath.print(std::cout);
+                        // OMPL_ERROR("Path with repeated vertices!");
+                        // gpath.print(std::cout);
                         break;
                     }
                 }

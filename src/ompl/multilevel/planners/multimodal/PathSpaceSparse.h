@@ -40,7 +40,7 @@ namespace ompl
             virtual const std::pair<BundleSpaceGraph::Edge, bool> 
               addEdge(const Vertex a, const Vertex b) override;
 
-            void checkPath(const Vertex v, const Vertex vStart, const Vertex vGoal);
+            void checkPath(const Vertex v, const Vertex v_, const Vertex vStart, const Vertex vGoal);
 
             base::PathPtr constructPath(const Vertex v, const Vertex vStart, const Vertex vGoal);
 
