@@ -447,8 +447,14 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
     else{
         // for (int i=0; i<3; i++)gpath.subdivide();
         // optimizer_->perturbPath(gpath, 0.1, 1000, 1000);
-        gpath.interpolate(30);
+        int komo_states = 30;
+        if (gpath.getStateCount() <= komo_states){ //optimize
+        gpath.interpolate(komo_states);
         valid = pathOptimizer_->optimize(gpath);
+        }
+        else { //delete path
+        std::cout << "path exceeds the number of states for optimization" << std::endl;
+        }
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
         // optimizer_->perturbPath(gpath, 0.1);
