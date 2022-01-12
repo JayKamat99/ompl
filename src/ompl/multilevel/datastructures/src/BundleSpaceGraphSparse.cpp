@@ -251,8 +251,9 @@ bool BundleSpaceGraphSparse::checkAddInterface(Configuration *q, std::vector<Con
             const Vertex &v1idx = qv1->index;
             if (!boost::edge(v0idx, v1idx, getGraph()).second)
             {
-                // If they can be directly connected
-                if (getBundle()->checkMotion(qv0->state, qv1->state))
+                // If they can be directly connected //Jay: I am omiting this check
+                // if (getBundle()->checkMotion(qv0->state, qv1->state))
+                if(1)
                 {
                     addEdge(v0idx, v1idx);
                 }

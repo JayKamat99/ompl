@@ -16,6 +16,7 @@
 #include <ompl/tools/config/SelfConfig.h>
 #include <ompl/datastructures/NearestNeighbors.h>
 #include <ompl/util/Exception.h>
+#include <fstream>
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/foreach.hpp>
@@ -65,7 +66,7 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 0.15; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    sparseDeltaFraction_ = 0.25; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000; //was previously 5000
     epsilonPathEquivalence_ = 1; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
@@ -366,7 +367,7 @@ void PathSpaceSparse::checkPath(const Vertex v, const Vertex v_, const Vertex vS
 
 
         OMPL_INFORM("** Testing path with cost %f", pathcost);
-        std::cout << "state count : " << gpath.getStateCount() << std::endl;;
+        // std::cout << "state count : " << gpath.getStateCount() << std::endl;;
         for (uint i = 0; i < getNumberOfPaths(); i++)
         {
             //NOTE: 
@@ -450,10 +451,18 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         int komo_states = 30;
         if (gpath.getStateCount() <= komo_states){ //optimize
         gpath.interpolate(komo_states);
+        //save the path in debug/initPath.txt
+        std::ofstream myfile;
+        myfile.open ("../debug/initPath.txt");
+        gpath.printAsMatrix(myfile);
+        myfile.close(); 
+
+        std::cout << "path going for optimization";
+
         valid = pathOptimizer_->optimize(gpath);
         }
         else { //delete path
-        std::cout << "path exceeds the number of states for optimization" << std::endl;
+        // std::cout << "path exceeds the number of states for optimization" << std::endl;
         }
         // valid = optimizer_->optimize(gpath);
         // optimizer_->smoothBSpline(gpath);
