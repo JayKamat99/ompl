@@ -34,6 +34,8 @@
 
 /* Author: Luis G. Torres, Jonathan Gammell (allocInformedStateSampler) */
 
+/* This one is by Jay Kamat */
+
 #ifndef OMPL_BASE_OBJECTIVES_PATH_LENGTH_SQUARED_OPTIMIZATION_OBJECTIVE_
 #define OMPL_BASE_OBJECTIVES_PATH_LENGTH_SQUARED_OPTIMIZATION_OBJECTIVE_
 

@@ -66,7 +66,7 @@ PathSpaceSparse::PathSpaceSparse(const base::SpaceInformationPtr &si, BundleSpac
     //  converged to its fixed path/attractor.
 
     //sparse roadmap parameters
-    sparseDeltaFraction_ = 0.25; //original is 0.25 (SMLR). We used 0.15 for WAFR
+    sparseDeltaFraction_ = 0.15; //original is 0.25 (SMLR). We used 0.15 for WAFR
     maxFailures_ = 5000; //was previously 5000
     epsilonPathEquivalence_ = 1; //was previously 0.2
     epsilonConvergenceThreshold_ = 1e-2;
@@ -452,12 +452,10 @@ bool PathSpaceSparse::optimizePath(geometric::PathGeometric& gpath)
         if (gpath.getStateCount() <= komo_states){ //optimize
         gpath.interpolate(komo_states);
         //save the path in debug/initPath.txt
-        std::ofstream myfile;
-        myfile.open ("../debug/initPath.txt");
-        gpath.printAsMatrix(myfile);
-        myfile.close(); 
-
-        std::cout << "path going for optimization";
+        // std::ofstream myfile;
+        // myfile.open ("../debug/initPath.txt");
+        // gpath.printAsMatrix(myfile);
+        // myfile.close(); 
 
         valid = pathOptimizer_->optimize(gpath);
         }
