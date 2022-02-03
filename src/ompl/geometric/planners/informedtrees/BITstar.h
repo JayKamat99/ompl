@@ -335,6 +335,8 @@ namespace ompl
             /** \brief Get the truncation factor for the current search. */
             double getCurrentTruncationFactor() const;
 
+            ompl::geometric::PathGeometricPtr optiPathPtr;
+
         private:
             // ---
             // High level primitives.

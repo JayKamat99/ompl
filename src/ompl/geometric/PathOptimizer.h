@@ -28,6 +28,8 @@ namespace ompl
 
             virtual bool optimize(PathGeometric &path)=0;
 
+            virtual PathGeometricPtr optimize_path(PathGeometricPtr &path){ return nullptr; }
+
             void setPathCost(double pathCost){
                 this->pathCost = pathCost;
             }

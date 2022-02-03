@@ -378,6 +378,28 @@ namespace ompl
             if (hasExactSolution_ || graphPtr_->getTrackApproximateSolutions())
             {
                 // Any solution
+                if (Planner::getName() == "BITKOMO")
+                {
+                    // Now create the solution
+                    ompl::base::PlannerSolution soln(optiPathPtr);
+
+                    // Mark the name:
+                    soln.setPlannerName(Planner::getName());
+
+                    // Mark as approximate if not exact:
+                    if (!hasExactSolution_ && graphPtr_->getTrackApproximateSolutions())
+                    {
+                        soln.setApproximate(graphPtr_->smallestDistanceToGoal());
+                    }
+
+                    // Mark whether the solution met the optimization objective:
+                    soln.setOptimized(Planner::pdef_->getOptimizationObjective(), bestCost_,
+                                    Planner::pdef_->getOptimizationObjective()->isSatisfied(bestCost_));
+
+                    // Add the solution to the Problem Definition:
+                    Planner::pdef_->addSolutionPath(soln);
+                }
+                else
                 this->publishSolution();
             }
             // No else, no solution to publish
@@ -944,6 +966,36 @@ namespace ompl
 
                 // Store the current goal
                 curGoalVertex_ = newBestGoal;
+
+                //WARNING: This edit is by Jay Kamat. This code will run only if planner is BITKOMO
+                // Now that we have gotten a new solution, let's check if we can optimize it using an optimizer.
+                if (Planner::getName() == "BITKOMO")
+                {
+
+                    // get the best path as path geometric
+                    // The reverse path of state pointers
+                    std::vector<const ompl::base::State *> reversePath;
+                    // Allocate a path geometric
+                    auto pathGeoPtr = std::make_shared<ompl::geometric::PathGeometric>(Planner::si_);
+
+                    // Get the reversed path
+                    reversePath = this->bestPathFromGoalToStart();
+
+                    // Now iterate that vector in reverse, putting the states into the path geometric
+                    for (const auto &solnState : boost::adaptors::reverse(reversePath))
+                    {
+                        pathGeoPtr->append(solnState);
+                    }
+
+                    // Optimize best path.
+                    optiPathPtr = pathOptimizer_->optimize_path(pathGeoPtr);
+                    if (optiPathPtr != nullptr){
+                        ompl::base::Cost OptiPathCost = optiPathPtr->cost(pdef_->getOptimizationObjective());
+                        if (OptiPathCost.value()<newCost.value()){
+                            newCost = OptiPathCost;
+                        }
+                    }
+                }
 
                 // Update the best cost:
                 bestCost_ = newCost;
