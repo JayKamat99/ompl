@@ -409,6 +409,8 @@ namespace ompl
             // Our returned solution will only be approximate if it is not exact and we are finding approximate
             // solutions.
             // PlannerStatus(addedSolution, approximate)
+            // Pause for a 10th of a second
+		    std::this_thread::sleep_for(std::chrono::milliseconds(100));
             return {hasExactSolution_ || graphPtr_->getTrackApproximateSolutions(),
                     !hasExactSolution_ && graphPtr_->getTrackApproximateSolutions()};
         }
