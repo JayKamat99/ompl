@@ -40,6 +40,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <queue>
 
 #include "ompl/base/Planner.h"
 #include "ompl/base/samplers/InformedStateSampler.h"
@@ -336,6 +337,8 @@ namespace ompl
             double getCurrentTruncationFactor() const;
 
             ompl::geometric::PathGeometricPtr optiPathPtr;
+
+            bool checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2) const;
 
         private:
             // ---

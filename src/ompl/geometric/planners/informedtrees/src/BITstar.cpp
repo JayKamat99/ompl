@@ -593,7 +593,12 @@ namespace ompl
                                 bestCost_))
                         {
                             // Does this edge have a collision?
-                            if (this->checkEdge(edge))
+                            bool inCollision;
+                            if (Planner::getName() == "BITKOMO")
+                                inCollision = this->checkMotionLazy(edge.first->state(), edge.second->state());
+                            else 
+                                inCollision = this->checkEdge(edge);
+                            if (inCollision)
                             {
                                 // Remember that this edge has passed the collision checks.
                                 this->whitelistEdge(edge);
@@ -825,8 +830,61 @@ namespace ompl
             else  // This is a new edge, we need to check whether it is feasible.
             {
                 ++numEdgeCollisionChecks_;
-                return Planner::si_->checkMotion(edge.first->state(), edge.second->state());
+                if(Planner::getName() == "BITKOMO")
+                    {return checkMotionLazy(edge.first->state(), edge.second->state());}
+                else
+                    {return Planner::si_->checkMotion(edge.first->state(), edge.second->state());}
             }
+        }
+
+        bool BITstar::checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2) const
+        {
+            /* assume motion starts in a valid configuration so s1 is valid */
+            if (!si_->isValid(s2))
+            {
+                return false;
+            }
+
+            bool result = true;
+            auto stateSpace_ = si_->getStateSpace();
+            int nd = stateSpace_->validSegmentCount(s1, s2);
+            nd = nd/4;
+
+            /* initialize the queue of test positions */
+            std::queue<std::pair<int, int>> pos;
+            if (nd >= 2)
+            {
+                pos.emplace(1, nd - 1);
+
+                /* temporary storage for the checked state */
+                ompl::base::State *test = si_->allocState();
+
+                /* repeatedly subdivide the path segment in the middle (and check the middle) */
+                while (!pos.empty())
+                {
+                    std::pair<int, int> x = pos.front();
+
+                    int mid = (x.first + x.second) / 2;
+                    stateSpace_->interpolate(s1, s2, (double)mid / (double)nd, test);
+
+                    if (!si_->isValid(test))
+                    {
+                        result = false;
+                        break;
+                    }
+
+                    pos.pop();
+
+                    if (x.first < mid)
+                        pos.emplace(x.first, mid - 1);
+                    if (x.second > mid)
+                        pos.emplace(mid + 1, x.second);
+                }
+
+                si_->freeState(test);
+            }
+
+            return result;
         }
 
         void BITstar::addEdge(const VertexPtrPair &edge, const ompl::base::Cost &edgeCost)
