@@ -184,6 +184,9 @@ namespace ompl
              * Cascades cost updates if requested.*/
             void removeEdgeBetweenVertexAndParent(const VertexPtr &child, bool cascadeCostUpdates);
 
+            // BITKOMO stuff by Jay
+            void addPathToGraph(ompl::geometric::PathGeometricPtr optimizedPathPtr);
+
             // ---
             // Settings.
             // ---

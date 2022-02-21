@@ -44,6 +44,8 @@ namespace ompl
             virtual void displayPath(PathGeometric &path, const std::string &txt) const;
 
             bool isStepWise{false};
+
+            virtual PathGeometricPtr getPath() const{ return nullptr; }
         };
     } // namespace geometric
 } // namespace ompl

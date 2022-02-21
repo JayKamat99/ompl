@@ -648,6 +648,11 @@ namespace ompl
             return numPruned;
         }
 
+        void BITstar::ImplicitGraph::addPathToGraph(ompl::geometric::PathGeometricPtr optimizedPathPtr)
+        {
+            std::cout << "Hey! I am adding your path!" << std::endl;
+        }
+
         void BITstar::ImplicitGraph::addToSamples(const VertexPtr &sample)
         {
             ASSERT_SETUP

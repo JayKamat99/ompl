@@ -114,6 +114,9 @@ namespace ompl
                                         &BITstar::getConsiderApproximateSolutions, "0,1");
 
             // Register my progress info:
+            if (Planner::getName() == "BITKOMO")
+            addPlannerProgressProperty("best cost DOUBLE", [this] { return bestCostProgressPropertyBITKOMO(); });
+            else
             addPlannerProgressProperty("best cost DOUBLE", [this] { return bestCostProgressProperty(); });
             addPlannerProgressProperty("number of segments in solution path INTEGER",
                                        [this] { return bestLengthProgressProperty(); });
@@ -170,6 +173,22 @@ namespace ompl
             // Call the base class setup. Marks Planner::setup_ as true.
             Planner::setup();
 
+            // Before settingup BIT* let's complete get the max edge length for BITKOMO
+            if (Planner::getName() == "BITKOMO")
+            {
+                double diagonalLength = 0;
+                ompl::base::RealVectorStateSpace *RN = si_->getStateSpace()->as<ompl::base::RealVectorStateSpace>();
+                const std::vector<double> &bl = RN->getBounds().low;
+                const std::vector<double> &bh = RN->getBounds().high;
+                for (int i=0; i<si_->getStateDimension(); i++)
+                {
+                    diagonalLength = diagonalLength + (bh.at(i)-bl.at(i))*(bh.at(i)-bl.at(i));
+                }
+                diagonalLength = sqrt(diagonalLength);
+                // std::cout << "diagonalLength = " << diagonalLength << std::endl;
+                maxSolutionCost = 3*diagonalLength;
+            }
+
             // Check if we have a problem definition
             if (static_cast<bool>(Planner::pdef_))
             {
@@ -186,6 +205,7 @@ namespace ompl
 
                 // Initialize the best cost found so far to be infinite.
                 bestCost_ = Planner::pdef_->getOptimizationObjective()->infiniteCost();
+                bestCostBITKOMO_ = Planner::pdef_->getOptimizationObjective()->infiniteCost();
 
                 // If the problem definition *has* a goal, make sure it is of appropriate type
                 if (static_cast<bool>(Planner::pdef_->getGoal()))
@@ -217,6 +237,7 @@ namespace ompl
 
                 // Set the best and pruned costs to the proper objective-based values:
                 bestCost_ = costHelpPtr_->infiniteCost();
+                bestCostBITKOMO_ = costHelpPtr_->infiniteCost();
                 prunedCost_ = costHelpPtr_->infiniteCost();
 
                 // Get the measure of the problem
@@ -273,6 +294,7 @@ namespace ompl
             // Reset the various calculations and convenience containers. Will be recalculated on setup
             curGoalVertex_.reset();
             bestCost_ = ompl::base::Cost(std::numeric_limits<double>::infinity());
+            bestCostBITKOMO_ = ompl::base::Cost(std::numeric_limits<double>::infinity());
             bestLength_ = 0u;
             prunedCost_ = ompl::base::Cost(std::numeric_limits<double>::infinity());
             prunedMeasure_ = 0.0;
@@ -593,15 +615,21 @@ namespace ompl
                                 bestCost_))
                         {
                             // Does this edge have a collision?
-                            bool inCollision;
+                            bool isCollisionFree;
                             if (Planner::getName() == "BITKOMO")
-                                inCollision = this->checkMotionLazy(edge.first->state(), edge.second->state());
+                                isCollisionFree = this->checkMotionLazy(edge.first->state(), edge.second->state());
                             else 
-                                inCollision = this->checkEdge(edge);
-                            if (inCollision)
+                                isCollisionFree = this->checkEdge(edge);
+
+                            if (isCollisionFree)
                             {
                                 // Remember that this edge has passed the collision checks.
                                 this->whitelistEdge(edge);
+
+                                if (Planner::getName() == "BITKOMO"){
+                                    ompl::base::Cost edgeCollisionPenalty{edgeFailures*maxSolutionCost};
+                                    trueEdgeCost = costHelpPtr_->combineCosts(trueEdgeCost, edgeCollisionPenalty);
+                                }
 
                                 // Does the current edge improve our graph?
                                 // g_t(v) + c(v,x) < g_t(x)?
@@ -837,18 +865,19 @@ namespace ompl
             }
         }
 
-        bool BITstar::checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2) const
+        bool BITstar::checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2)
         {
+            edgeFailures = 0;
+
             /* assume motion starts in a valid configuration so s1 is valid */
             if (!si_->isValid(s2))
             {
-                return false;
+                edgeFailures++;
             }
 
             bool result = true;
             auto stateSpace_ = si_->getStateSpace();
             int nd = stateSpace_->validSegmentCount(s1, s2);
-            nd = nd/4;
 
             /* initialize the queue of test positions */
             std::queue<std::pair<int, int>> pos;
@@ -869,8 +898,12 @@ namespace ompl
 
                     if (!si_->isValid(test))
                     {
-                        result = false;
-                        break;
+                        edgeFailures++;
+                        if (edgeFailures > maxEdgeFailures)
+                        {
+                            result = false;
+                            break;
+                        }
                     }
 
                     pos.pop();
@@ -1031,6 +1064,10 @@ namespace ompl
                 // Now that we have gotten a new solution, let's check if we can optimize it using an optimizer.
                 if (Planner::getName() == "BITKOMO")
                 {
+                    // If the path is already collision free, we need to save current cost as best cost
+                    if (newCost.value() < maxSolutionCost){
+                        bestCostBITKOMO_ = newCost;
+                    }
 
                     // get the best path as path geometric
                     // The reverse path of state pointers
@@ -1053,8 +1090,17 @@ namespace ompl
                         ompl::base::Cost OptiPathCost = optiPathPtr->cost(pdef_->getOptimizationObjective());
                         if (OptiPathCost.value()<newCost.value()){
                             newCost = OptiPathCost;
+                            // update BITKOMO cost
+                            bestCostBITKOMO_ = newCost;
                         }
+                        // No else, the new path is not useful to us
                     }
+                    // No else, The path is not feasible
+
+                    // Whichever way, we can always extract edge information from the path
+                    // get the path from optimizer
+                    ompl::geometric::PathGeometricPtr optimizedPathPtr = pathOptimizer_->getPath();
+                    graphPtr_->addPathToGraph(optimizedPathPtr);
                 }
 
                 // Update the best cost:
@@ -1065,7 +1111,7 @@ namespace ompl
 
                 // Tell everyone else about it.
                 queuePtr_->registerSolutionCost(bestCost_);
-                graphPtr_->registerSolutionCost(bestCost_);
+                graphPtr_->registerSolutionCost(bestCostBITKOMO_);
 
                 // Stop the solution loop if enabled:
                 stopLoop_ = stopOnSolutionChange_;
@@ -1438,6 +1484,11 @@ namespace ompl
         std::string BITstar::bestCostProgressProperty() const
         {
             return ompl::toString(bestCost_.value());
+        }
+
+        std::string BITstar::bestCostProgressPropertyBITKOMO() const
+        {
+            return ompl::toString(bestCostBITKOMO_.value());
         }
 
         std::string BITstar::bestLengthProgressProperty() const

@@ -45,6 +45,9 @@
 #include "ompl/base/Planner.h"
 #include "ompl/base/samplers/InformedStateSampler.h"
 #include "ompl/datastructures/NearestNeighbors.h"
+#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/base/goals/GoalState.h>
+
 
 // Defining BITSTAR_DEBUG enables (significant) debug output. Do not enable unless necessary.
 // #define BITSTAR_DEBUG
@@ -338,7 +341,12 @@ namespace ompl
 
             ompl::geometric::PathGeometricPtr optiPathPtr;
 
-            bool checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2) const;
+            bool checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2);
+
+            // These will only be used in BITKOMO : Modification by Jay
+            unsigned int edgeFailures{0};
+            unsigned int maxEdgeFailures{3}; // maximum number of invalid points we allow an edge to have
+            double maxSolutionCost; // This is set as 3*diagonalLength by default but can be chnaged by the user manually
 
         private:
             // ---
@@ -408,6 +416,9 @@ namespace ompl
 
             /** \brief Retrieve the best exact-solution cost found as a planner-progress property. */
             std::string bestCostProgressProperty() const;
+
+            /** \brief Retrieve the best exact-solution cost found as a planner-progress property for BITKOMO. */
+            std::string bestCostProgressPropertyBITKOMO() const;
 
             /** \brief Retrieve the length of the best exact-solution found as a planner-progress property.
              * (bestLength_) */
@@ -503,6 +514,7 @@ namespace ompl
              * Accessible via bestCostProgressProperty */
             // Gets set in setup to the proper calls from OptimizationObjective
             ompl::base::Cost bestCost_;
+            ompl::base::Cost bestCostBITKOMO_;
 
             /** \brief The number of vertices in the best solution found to date. Accessible via
              * bestLengthProgressProperty. */
