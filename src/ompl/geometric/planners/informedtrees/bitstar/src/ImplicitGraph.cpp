@@ -651,6 +651,20 @@ namespace ompl
         void BITstar::ImplicitGraph::addPathToGraph(ompl::geometric::PathGeometricPtr optimizedPathPtr)
         {
             std::cout << "Hey! I am adding your path!" << std::endl;
+            VertexPtrVector pathVertices_;
+            for (int i=0; i<optimizedPathPtr->getStateCount(); i++)
+            {
+                // Record the state as nextState
+                const ompl::base::State *pathState = optimizedPathPtr->getState(i);
+
+                // Allocate the vertex pointer:
+                pathVertices_.push_back(std::make_shared<Vertex>(spaceInformation_, costHelpPtr_, queuePtr_, approximationId_, true));
+
+                // Copy the value into the state.
+                spaceInformation_->copyState(pathVertices_.back()->state(), pathState);
+            }
+            // Add the vertex to the set of vertices.
+            this->addToSamples(pathVertices_);
         }
 
         void BITstar::ImplicitGraph::addToSamples(const VertexPtr &sample)

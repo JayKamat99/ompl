@@ -321,6 +321,8 @@ namespace ompl
 
         ompl::base::PlannerStatus BITstar::solve(const ompl::base::PlannerTerminationCondition &ptc)
         {
+            // #define max_failure_check
+
             // Check that Planner::setup_ is true, if not call this->setup()
             Planner::checkValidity();
 
@@ -615,13 +617,7 @@ namespace ompl
                                 bestCost_))
                         {
                             // Does this edge have a collision?
-                            bool isCollisionFree;
-                            if (Planner::getName() == "BITKOMO")
-                                isCollisionFree = this->checkMotionLazy(edge.first->state(), edge.second->state());
-                            else 
-                                isCollisionFree = this->checkEdge(edge);
-
-                            if (isCollisionFree)
+                            if (this->checkEdge(edge))
                             {
                                 // Remember that this edge has passed the collision checks.
                                 this->whitelistEdge(edge);
@@ -860,6 +856,7 @@ namespace ompl
                 ++numEdgeCollisionChecks_;
                 if(Planner::getName() == "BITKOMO")
                     {return checkMotionLazy(edge.first->state(), edge.second->state());}
+                    // {return Planner::si_->checkMotion(edge.first->state(), edge.second->state());} // To run normal BIT*
                 else
                     {return Planner::si_->checkMotion(edge.first->state(), edge.second->state());}
             }
@@ -867,57 +864,119 @@ namespace ompl
 
         bool BITstar::checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2)
         {
-            edgeFailures = 0;
+            #ifdef max_failure_check
+                edgeFailures = 0;
 
-            /* assume motion starts in a valid configuration so s1 is valid */
-            if (!si_->isValid(s2))
-            {
-                edgeFailures++;
-            }
-
-            bool result = true;
-            auto stateSpace_ = si_->getStateSpace();
-            int nd = stateSpace_->validSegmentCount(s1, s2);
-
-            /* initialize the queue of test positions */
-            std::queue<std::pair<int, int>> pos;
-            if (nd >= 2)
-            {
-                pos.emplace(1, nd - 1);
-
-                /* temporary storage for the checked state */
-                ompl::base::State *test = si_->allocState();
-
-                /* repeatedly subdivide the path segment in the middle (and check the middle) */
-                while (!pos.empty())
+                /* assume motion starts in a valid configuration so s1 is valid */
+                if (!si_->isValid(s2))
                 {
-                    std::pair<int, int> x = pos.front();
-
-                    int mid = (x.first + x.second) / 2;
-                    stateSpace_->interpolate(s1, s2, (double)mid / (double)nd, test);
-
-                    if (!si_->isValid(test))
-                    {
-                        edgeFailures++;
-                        if (edgeFailures > maxEdgeFailures)
-                        {
-                            result = false;
-                            break;
-                        }
-                    }
-
-                    pos.pop();
-
-                    if (x.first < mid)
-                        pos.emplace(x.first, mid - 1);
-                    if (x.second > mid)
-                        pos.emplace(mid + 1, x.second);
+                    edgeFailures++;
                 }
 
-                si_->freeState(test);
-            }
+                bool result = true;
+                auto stateSpace_ = si_->getStateSpace();
+                int nd = stateSpace_->validSegmentCount(s1, s2);
 
-            return result;
+                /* initialize the queue of test positions */
+                std::queue<std::pair<int, int>> pos;
+                if (nd >= 2)
+                {
+                    pos.emplace(1, nd - 1);
+
+                    /* temporary storage for the checked state */
+                    ompl::base::State *test = si_->allocState();
+
+                    /* repeatedly subdivide the path segment in the middle (and check the middle) */
+                    while (!pos.empty())
+                    {
+                        std::pair<int, int> x = pos.front();
+
+                        int mid = (x.first + x.second) / 2;
+                        stateSpace_->interpolate(s1, s2, (double)mid / (double)nd, test);
+
+                        if (!si_->isValid(test))
+                        {
+                            edgeFailures++;
+                            if (edgeFailures > maxEdgeFailures)
+                            {
+                                result = false;
+                                break;
+                            }
+                        }
+
+                        pos.pop();
+
+                        if (x.first < mid)
+                            pos.emplace(x.first, mid - 1);
+                        if (x.second > mid)
+                            pos.emplace(mid + 1, x.second);
+                    }
+
+                    si_->freeState(test);
+                }
+
+                return result;
+            #else // else use the fast collision checking
+                /* assume motion starts in a valid configuration so s1 is valid */
+                int count = 2; // we star with 2 because we are already checking the second vertex
+                if (!si_->isValid(s2))
+                {
+                    return false;
+                }
+
+                bool result = true;
+                auto stateSpace_ = si_->getStateSpace();
+                int nd = stateSpace_->validSegmentCount(s1, s2);
+                int log_nd = std::ceil(std::log2(nd));
+
+                /* initialize the queue of test positions */
+                std::queue<std::pair<int, int>> pos;
+                if (nd >= 2)
+                {
+                    pos.emplace(1, nd - 1);
+
+                    /* temporary storage for the checked state */
+                    ompl::base::State *test = si_->allocState();
+
+                    /* repeatedly subdivide the path segment in the middle (and check the middle) */
+                    while (!pos.empty())
+                    {
+                        std::pair<int, int> x = pos.front();
+
+                        int mid = (x.first + x.second) / 2;
+                        stateSpace_->interpolate(s1, s2, (double)mid / (double)nd, test);
+
+                        count++;
+                        if (!si_->isValid(test))
+                        {
+                            // updare failnumber here and result depends on that
+                            int level = (log_nd - (int)std::ceil(std::log2(count)));
+                            if (level < 1)
+                            {
+                                result = true;
+                                edgeFailures = level+1;
+                            }
+                            else 
+                            {
+                                result = false;
+                            }
+                            break;
+                        }
+                        
+
+                        pos.pop();
+
+                        if (x.first < mid)
+                            pos.emplace(x.first, mid - 1);
+                        if (x.second > mid)
+                            pos.emplace(mid + 1, x.second);
+                    }
+
+                    si_->freeState(test);
+                }
+
+                return result;
+            #endif
         }
 
         void BITstar::addEdge(const VertexPtrPair &edge, const ompl::base::Cost &edgeCost)
@@ -1087,6 +1146,7 @@ namespace ompl
                     // Optimize best path.
                     optiPathPtr = pathOptimizer_->optimize_path(pathGeoPtr);
                     if (optiPathPtr != nullptr){
+                        // stopLoop_ = true;
                         ompl::base::Cost OptiPathCost = optiPathPtr->cost(pdef_->getOptimizationObjective());
                         if (OptiPathCost.value()<newCost.value()){
                             newCost = OptiPathCost;
@@ -1097,10 +1157,15 @@ namespace ompl
                     }
                     // No else, The path is not feasible
 
-                    // Whichever way, we can always extract edge information from the path
-                    // get the path from optimizer
-                    ompl::geometric::PathGeometricPtr optimizedPathPtr = pathOptimizer_->getPath();
-                    graphPtr_->addPathToGraph(optimizedPathPtr);
+                    // // Whichever way, we can always extract edge information from the path
+                    // // get the path from optimizer
+                    // if (pathOptimizer_->getPath() != nullptr){
+                    //     ompl::geometric::PathGeometricPtr optimizedPathPtr = pathOptimizer_->getPath();
+                    //     graphPtr_->addPathToGraph(optimizedPathPtr);
+                    // }
+                    // else {
+                    //     stopLoop_ = true;
+                    // }
                 }
 
                 // Update the best cost:
