@@ -340,6 +340,7 @@ namespace ompl
             double getCurrentTruncationFactor() const;
 
             ompl::geometric::PathGeometricPtr optiPathPtr;
+            ompl::geometric::PathGeometricPtr bestPathPtr;
 
             bool checkMotionLazy(const ompl::base::State *s1, const ompl::base::State *s2);
 

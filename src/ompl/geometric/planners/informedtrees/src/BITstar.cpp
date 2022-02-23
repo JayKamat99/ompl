@@ -114,7 +114,7 @@ namespace ompl
                                         &BITstar::getConsiderApproximateSolutions, "0,1");
 
             // Register my progress info:
-            if (Planner::getName() == "BITKOMO")
+            if (Planner::getName() == "BITKOMO" || Planner::getName() == "validBITKOMO")
             addPlannerProgressProperty("best cost DOUBLE", [this] { return bestCostProgressPropertyBITKOMO(); });
             else
             addPlannerProgressProperty("best cost DOUBLE", [this] { return bestCostProgressProperty(); });
@@ -174,7 +174,7 @@ namespace ompl
             Planner::setup();
 
             // Before settingup BIT* let's complete get the max edge length for BITKOMO
-            if (Planner::getName() == "BITKOMO")
+            if (Planner::getName() == "BITKOMO" || Planner::getName() == "validBITKOMO")
             {
                 double diagonalLength = 0;
                 ompl::base::RealVectorStateSpace *RN = si_->getStateSpace()->as<ompl::base::RealVectorStateSpace>();
@@ -402,10 +402,10 @@ namespace ompl
             if (hasExactSolution_ || graphPtr_->getTrackApproximateSolutions())
             {
                 // Any solution
-                if (Planner::getName() == "BITKOMO")
+                if (Planner::getName() == "BITKOMO" || Planner::getName() == "validBITKOMO")
                 {
                     // Now create the solution
-                    ompl::base::PlannerSolution soln(optiPathPtr);
+                    ompl::base::PlannerSolution soln(bestPathPtr);
 
                     // Mark the name:
                     soln.setPlannerName(Planner::getName());
@@ -417,8 +417,8 @@ namespace ompl
                     }
 
                     // Mark whether the solution met the optimization objective:
-                    soln.setOptimized(Planner::pdef_->getOptimizationObjective(), bestCost_,
-                                    Planner::pdef_->getOptimizationObjective()->isSatisfied(bestCost_));
+                    soln.setOptimized(Planner::pdef_->getOptimizationObjective(), bestCostBITKOMO_,
+                                    Planner::pdef_->getOptimizationObjective()->isSatisfied(bestCostBITKOMO_));
 
                     // Add the solution to the Problem Definition:
                     Planner::pdef_->addSolutionPath(soln);
@@ -623,6 +623,7 @@ namespace ompl
                                 this->whitelistEdge(edge);
 
                                 if (Planner::getName() == "BITKOMO"){
+                                    // For BITKOMO we allow even edges with collision but with a collision penalty
                                     ompl::base::Cost edgeCollisionPenalty{edgeFailures*maxSolutionCost};
                                     trueEdgeCost = costHelpPtr_->combineCosts(trueEdgeCost, edgeCollisionPenalty);
                                 }
@@ -854,9 +855,9 @@ namespace ompl
             else  // This is a new edge, we need to check whether it is feasible.
             {
                 ++numEdgeCollisionChecks_;
+                edgeFailures = 0;
                 if(Planner::getName() == "BITKOMO")
                     {return checkMotionLazy(edge.first->state(), edge.second->state());}
-                    // {return Planner::si_->checkMotion(edge.first->state(), edge.second->state());} // To run normal BIT*
                 else
                     {return Planner::si_->checkMotion(edge.first->state(), edge.second->state());}
             }
@@ -917,6 +918,8 @@ namespace ompl
 
                 return result;
             #else // else use the fast collision checking
+                edgeFailures = 0; // To start with we assume that the edge is not in collision
+
                 /* assume motion starts in a valid configuration so s1 is valid */
                 int count = 2; // we star with 2 because we are already checking the second vertex
                 if (!si_->isValid(s2))
@@ -949,9 +952,9 @@ namespace ompl
                         count++;
                         if (!si_->isValid(test))
                         {
-                            // updare failnumber here and result depends on that
+                            // update fail number here and result depends on that
                             int level = (log_nd - (int)std::ceil(std::log2(count)));
-                            if (level < 1)
+                            if (level < 2)
                             {
                                 result = true;
                                 edgeFailures = level+1;
@@ -1121,7 +1124,7 @@ namespace ompl
 
                 //WARNING: This edit is by Jay Kamat. This code will run only if planner is BITKOMO
                 // Now that we have gotten a new solution, let's check if we can optimize it using an optimizer.
-                if (Planner::getName() == "BITKOMO")
+                if (Planner::getName() == "BITKOMO" || Planner::getName() == "validBITKOMO")
                 {
                     // If the path is already collision free, we need to save current cost as best cost
                     if (newCost.value() < maxSolutionCost){
@@ -1145,6 +1148,7 @@ namespace ompl
 
                     // Optimize best path.
                     optiPathPtr = pathOptimizer_->optimize_path(pathGeoPtr);
+                    // If we do get a solution, check if it is better than our previous solution
                     if (optiPathPtr != nullptr){
                         // stopLoop_ = true;
                         ompl::base::Cost OptiPathCost = optiPathPtr->cost(pdef_->getOptimizationObjective());
@@ -1152,6 +1156,7 @@ namespace ompl
                             newCost = OptiPathCost;
                             // update BITKOMO cost
                             bestCostBITKOMO_ = newCost;
+                            bestPathPtr = optiPathPtr;
                         }
                         // No else, the new path is not useful to us
                     }
