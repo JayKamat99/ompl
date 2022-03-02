@@ -954,7 +954,7 @@ namespace ompl
                         {
                             // update fail number here and result depends on that
                             int level = (log_nd - (int)std::ceil(std::log2(count)));
-                            if (level < 2)
+                            if (level < 1)
                             {
                                 result = true;
                                 edgeFailures = level+1;
