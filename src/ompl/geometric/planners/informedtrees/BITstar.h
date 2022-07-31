@@ -290,6 +290,13 @@ namespace ompl
             /** \brief Get whether BIT* stops each time a solution is found. */
             bool getStopOnSolnImprovement() const;
 
+            /** \brief Stop the planner each time a path to new goal is found. Useful
+            for examining when the goal vertex changes. */
+            void setStopOnGoalStateUpdate(bool stopOnChange);
+
+            /** \brief Get whether BIT* stops each time a solution is found. */
+            bool getStopOnGoalStateUpdate() const;
+
             /** \brief Set BIT* to consider approximate solutions during its initial search. */
             void setConsiderApproximateSolutions(bool findApproximate);
 
@@ -573,6 +580,7 @@ namespace ompl
 
             /** \brief Whether to stop the planner as soon as the path changes. */
             bool stopOnSolutionChange_{false};
+            bool stopOnGoalChange_{false};
         };  // class BITstar
     }       // namespace geometric
 }  // namespace ompl

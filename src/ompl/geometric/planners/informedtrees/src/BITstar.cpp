@@ -1098,6 +1098,7 @@ namespace ompl
                                 goalUpdated = true;
                                 newBestGoal = *it;
                                 newCost = newBestGoal->getCost();
+                                stopLoop_ = stopOnGoalChange_;
                             }
                             // No else, not a better solution
                         }
@@ -1108,6 +1109,7 @@ namespace ompl
                         goalUpdated = true;
                         newBestGoal = *it;
                         newCost = newBestGoal->getCost();
+                        stopLoop_ = stopOnGoalChange_;
                     }
                 }
                 // No else, can't be a better solution if it's not in the spanning tree, can it?
@@ -1184,7 +1186,7 @@ namespace ompl
                 graphPtr_->registerSolutionCost(bestCostBITKOMO_);
 
                 // Stop the solution loop if enabled:
-                stopLoop_ = stopOnSolutionChange_;
+                stopLoop_ = stopOnSolutionChange_ || stopLoop_;
 
                 // Brag:
                 this->goalMessage();
@@ -1508,6 +1510,16 @@ namespace ompl
         bool BITstar::getStopOnSolnImprovement() const
         {
             return stopOnSolutionChange_;
+        }
+
+        void BITstar::setStopOnGoalStateUpdate(bool stopOnChange)
+        {
+            stopOnGoalChange_ = stopOnChange;
+        }
+
+        bool BITstar::getStopOnGoalStateUpdate() const
+        {
+            return stopOnGoalChange_;
         }
 
         void BITstar::setConsiderApproximateSolutions(bool findApproximate)
