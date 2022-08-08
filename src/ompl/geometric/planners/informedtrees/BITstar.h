@@ -41,6 +41,7 @@
 #include <utility>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
 #include "ompl/base/Planner.h"
 #include "ompl/base/samplers/InformedStateSampler.h"
@@ -307,6 +308,12 @@ namespace ompl
             template <template <typename T> class NN>
             void setNearestNeighbors();
 
+            // Additions for sktp
+            void setGoalPenaltyMap(std::shared_ptr<std::unordered_map<const ompl::base::State*,double>> GoalPenaltyMap)
+            {
+                this->GoalPenaltyMap = GoalPenaltyMap;
+            }
+
         protected:
             // ---
             // The settings that turn BIT* into ABIT*.
@@ -564,6 +571,9 @@ namespace ompl
 
             /** \brief The number of edge collision checks. Accessible via edgeCollisionCheckProgressProperty. */
             unsigned int numEdgeCollisionChecks_{0u};
+
+            /** \brief A map from goal to goal Penalty. */
+            std::shared_ptr<std::unordered_map<const ompl::base::State*,double>> GoalPenaltyMap;
 
             // ---
             // Parameters - Set defaults in construction/setup and do not reset in clear.

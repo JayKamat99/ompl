@@ -372,6 +372,8 @@ namespace ompl
                 queuePtr_->insertOutgoingEdgesOfStartVertices();
             }
 
+            costHelpPtr_->setGoalPenaltyMap(GoalPenaltyMap);
+
             /* Iterate as long as:
               - We're allowed (ptc == false && stopLoop_ == false), AND
               - We haven't found a good enough solution (costHelpPtr_->isSatisfied(bestCost) == false),
@@ -611,6 +613,11 @@ namespace ompl
 
                         // Can this actual edge ever improve our solution?
                         // g_hat(v) + c(v,x) + h_hat(x) < g_t(x_g)?
+                        if(Planner::getName() == "sktp")
+                        {
+                            std::cout << "sktpGooo" << std::endl;
+                            // #define costToGoHeuristic costToGoHeuristic_sktp
+                        }
                         if (costHelpPtr_->isCostBetterThan(
                                 costHelpPtr_->combineCosts(costHelpPtr_->costToComeHeuristic(edge.first), trueEdgeCost,
                                                            costHelpPtr_->costToGoHeuristic(edge.second)),

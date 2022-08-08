@@ -45,6 +45,8 @@
 // For exceptions:
 #include "ompl/util/Exception.h"
 
+#include <unordered_map>
+
 
 // BIT*:
 // I am member class of the BITstar class (i.e., I am in it's namespace), so I need to include it's definition to be
@@ -95,6 +97,11 @@ namespace ompl
             {
                 return opt_;
             };
+
+            void setGoalPenaltyMap(std::shared_ptr<std::unordered_map<const ompl::base::State*,double>> GoalPenaltyMap)
+            {
+                this->GoalPenaltyMap = GoalPenaltyMap;
+            }
 
             //////////////////
             // Heuristic helper functions
@@ -200,6 +207,30 @@ namespace ompl
                     // Update the cost-to-go as the better of the best so far and the new one
                     curBest = this->betterCost(curBest,
                                                this->motionCostHeuristic(vertex->state(), (*goalIter)->state()));
+                }
+
+                // Return
+                return curBest;
+            };
+            //////////////////
+
+            /** \brief Calculate a heuristic estimate of the cost-to-go for a Vertex (only for sktp)*/
+            inline ompl::base::Cost costToGoHeuristic_sktp(const VertexConstPtr &vertex) const
+            {
+                // Variable
+                // The current best cost to a goal from the state, initialize to infinity
+                ompl::base::Cost curBest = this->infiniteCost();
+
+                // Iterate over the vector of goals, finding the minimum estimated cost-to-go from the state
+                for (auto goalIter = graphPtr_->goalVerticesBeginConst(); goalIter != graphPtr_->goalVerticesEndConst();
+                     ++goalIter)
+                {
+                    // Update the cost-to-go as the better of the best so far and the new one
+                    auto costFromGoal = (ompl::base::Cost)(this->GoalPenaltyMap->at((*goalIter)->state()));
+                    std::cout << "1";
+                    auto costToGoalHeuristic_sktp = this->combineCosts(this->motionCostHeuristic(vertex->state(), (*goalIter)->state()),costFromGoal);
+                    std::cout << "2";
+                    curBest = this->betterCost(curBest, costToGoalHeuristic_sktp);
                 }
 
                 // Return
@@ -339,6 +370,9 @@ namespace ompl
              * version owned by BITstar.cpp it can be reset in a clear(). */
             ImplicitGraph *graphPtr_;
             ////////////////////////////////
+
+            std::shared_ptr<std::unordered_map<const ompl::base::State*,double>> GoalPenaltyMap;
+
         };  // class CostHelper
     }       // geometric
 }  // ompl
