@@ -39,6 +39,7 @@
 
 #include <string>
 #include <utility>
+// #include <map>
 #include <vector>
 #include <queue>
 
@@ -47,6 +48,8 @@
 #include "ompl/datastructures/NearestNeighbors.h"
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/base/goals/GoalState.h>
+
+#include <ompl/base/ProblemDefinition_ext.h>
 
 
 // Defining BITSTAR_DEBUG enables (significant) debug output. Do not enable unless necessary.
@@ -307,6 +310,11 @@ namespace ompl
             template <template <typename T> class NN>
             void setNearestNeighbors();
 
+            // void setReachedGoalsmap(std::shared_ptr<std::map<std::vector<double>,double>> reachedGoals)
+            // {
+            //     this->reachedGoals = reachedGoals;
+            // }
+
         protected:
             // ---
             // The settings that turn BIT* into ABIT*.
@@ -356,6 +364,12 @@ namespace ompl
             unsigned int maxEdgeFailures{3}; // maximum number of invalid points we allow an edge to have
             double maxSolutionCost; // This is set as 3*diagonalLength by default but can be chnaged by the user manually
 
+            // std::shared_ptr<std::map<ompl::base::State*, double>> reachedGoals;
+            // void addReachedGoal(ompl::geometric::BITstar::VertexPtr newGoal)
+            // {
+            //     (*reachedGoals)[newGoal->state()] = 4.1;
+            // }
+
         private:
             // ---
             // High level primitives.
@@ -380,6 +394,8 @@ namespace ompl
             /** \brief Extract the best solution, ordered \e from the goal to the \e start and including both the goal
              * and the start. Used by both publishSolution and the ProblemDefinition::IntermediateSolutionCallback. */
             std::vector<const ompl::base::State *> bestPathFromGoalToStart() const;
+
+            std::vector<const ompl::base::State *> getPathFromGoalToStart(ompl::geometric::BITstar::VertexConstPtr curVertex) const;
 
             /** \brief Checks an edge for collision. A wrapper to SpaceInformation->checkMotion that tracks number of
              * collision checks. */

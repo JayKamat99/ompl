@@ -372,6 +372,16 @@ namespace ompl
                 queuePtr_->insertOutgoingEdgesOfStartVertices();
             }
 
+            if (Planner::getName() == "sktp_BITstar")
+            {
+                while(!ptc)
+                {
+                    this->iterate();
+                }
+            }
+
+            else
+            {
             /* Iterate as long as:
               - We're allowed (ptc == false && stopLoop_ == false), AND
               - We haven't found a good enough solution (costHelpPtr_->isSatisfied(bestCost) == false),
@@ -386,6 +396,7 @@ namespace ompl
                     Planner::pis_.haveMoreStartStates() || Planner::pis_.haveMoreGoalStates()))
             {
                 this->iterate();
+            }
             }
 
             // Announce
@@ -422,6 +433,35 @@ namespace ompl
 
                     // Add the solution to the Problem Definition:
                     Planner::pdef_->addSolutionPath(soln);
+                }
+                else if (Planner::getName() == "BITstar_sktp")
+                {
+                    for (auto it = graphPtr_->goalVerticesBeginConst(); it != graphPtr_->goalVerticesEndConst(); ++it)
+                    {
+                        auto pdef_ext = std::static_pointer_cast<ompl::base::ProblemDefinition_ext>(pdef_);
+                        if ((*it)->getParent())
+                        {
+                            // Get path
+                            // Variable
+                            // The reverse path of state pointers
+                            std::vector<const ompl::base::State *> reversePath;
+                            // Allocate a path geometric
+                            auto pathGeoPtr = std::make_shared<ompl::geometric::PathGeometric>(Planner::si_);
+
+                            // Get the reversed path
+                            reversePath = this->getPathFromGoalToStart(*it);
+
+                            // Now iterate that vector in reverse, putting the states into the path geometric
+                            for (const auto &solnState : boost::adaptors::reverse(reversePath))
+                            {
+                                pathGeoPtr->append(solnState);
+                            }
+
+                            // Publish path
+                            pdef_ext->addReachedGoal((*it)->state(), (*it)->getCost().value(), pathGeoPtr);
+                            std::cout << "path published!" <<std::endl;
+                        }
+                    }
                 }
                 else
                 this->publishSolution();
@@ -789,6 +829,36 @@ namespace ompl
 
             // Add the solution to the Problem Definition:
             Planner::pdef_->addSolutionPath(soln);
+        }
+
+        std::vector<const ompl::base::State *> BITstar::getPathFromGoalToStart(ompl::geometric::BITstar::VertexConstPtr curVertex) const
+        {
+            // Variables:
+            // A vector of states from goal->start:
+            std::vector<const ompl::base::State *> reversePath;
+
+            // Insert the goal into the path
+            reversePath.push_back(curVertex->state());
+
+            // Then, use the vertex pointer like an iterator. Starting at the goal, we iterate up the chain pushing the
+            // *parent* of the iterator into the vector until the vertex has no parent.
+            // This will allows us to add the start (as the parent of the first child) and then stop when we get to the
+            // start itself, avoiding trying to find its nonexistent child
+            for (/*Already allocated & initialized*/; !curVertex->isRoot(); curVertex = curVertex->getParent())
+            {
+                #ifdef BITSTAR_DEBUG
+                                // Check the case where the chain ends incorrectly.
+                                if (curVertex->hasParent() == false)
+                                {
+                                    throw ompl::Exception("The path to the goal does not originate at a start state. Something went "
+                                                        "wrong.");
+                                }
+                #endif  // BITSTAR_DEBUG
+
+                // Push back the parent into the vector as a state pointer:
+                reversePath.push_back(curVertex->getParent()->state());
+            }
+            return reversePath;
         }
 
         std::vector<const ompl::base::State *> BITstar::bestPathFromGoalToStart() const
