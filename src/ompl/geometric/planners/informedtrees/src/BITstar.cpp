@@ -185,7 +185,6 @@ namespace ompl
                     diagonalLength = diagonalLength + (bh.at(i)-bl.at(i))*(bh.at(i)-bl.at(i));
                 }
                 diagonalLength = sqrt(diagonalLength);
-                // std::cout << "diagonalLength = " << diagonalLength << std::endl;
                 maxSolutionCost = 3*diagonalLength;
             }
 
@@ -459,7 +458,6 @@ namespace ompl
 
                             // Publish path
                             pdef_ext->addReachedGoal((*it)->state(), (*it)->getCost().value(), pathGeoPtr);
-                            std::cout << "path published!" <<std::endl;
                         }
                     }
                 }

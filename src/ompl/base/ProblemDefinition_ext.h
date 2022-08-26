@@ -27,7 +27,7 @@ namespace ompl
             std::vector<const ompl::base::State*> reachedGoals;
         public:
             ProblemDefinition_ext(SpaceInformationPtr si) : ProblemDefinition(si) {}
-            virtual ~ProblemDefinition_ext() override {std::cout << "pdef destroyed" << std::endl;}
+            virtual ~ProblemDefinition_ext() override {}
 
             /* Modifies the costToReach and Path to the goal. Adds the goal state to the vector of goal state only if it is a new goal */
             void addReachedGoal(const ompl::base::State* goal_, double costToReach, ompl::geometric::PathGeometricPtr pathGeoPtr);

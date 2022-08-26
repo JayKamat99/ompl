@@ -6,8 +6,6 @@ namespace ompl
     {
         void ProblemDefinition_ext::addReachedGoal(const ompl::base::State* goal_, double costToReach, ompl::geometric::PathGeometricPtr pathGeoPtr)
         {
-            std::cout << "addReachedGoal called!" << std::endl;
-            std::cout << goal_ << std::endl;
             bool goalAccounted = false;
             for(auto goal:reachedGoals)
             {
